@@ -28,7 +28,7 @@ namespace std {
     typedef implementation-defined                   const_iterator;//LegacyBidirectionalIterator to const value_type
     typedef std::reverse_iterator<iterator>          reverse_iterator;//	std::reverse_iterator<iterator>
     typedef std::reverse_iterator<const_iterator>    const_reverse_iterator;//std::reverse_iterator<const_iterator>
- 
+    std::make_pair
      class value_compare
         : public binary_function<value_type, value_type, bool>
     {

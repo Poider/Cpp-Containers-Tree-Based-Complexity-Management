@@ -1,12 +1,63 @@
 #ifndef _my_vector
 #define _my_vector
 
+#include <memory>
 // #include <cstdlib>
 //namespace
 
-template <class T, class Allocator = allocator<T> >
-class vector
+
+template <typename vector>
+    class VectorIterator
 {
+    public :
+        typedef typename vector::value_type                     value_type;
+        typedef typename std::ptrdiff_t                         difference_type;
+        typedef typename std::random_access_iterator_tag        iterator_category;
+        typedef typename value_type*                            pointer;
+        typedef typename value_type&                            reference;
+
+    private :
+        pointer ptr;
+
+    public :
+        VectorIterator();//default constructible only from forward iterator and ahead
+        VectorIterator(const VectorIterator<vector> &other);
+        VectorIterator<vector>& operator=(const VectorIterator<vector> &other);
+        ~VectorIterator();
+
+        //increments
+            VectorIterator<vector>& operator++();
+            VectorIterator<vector>& operator++(int);
+            VectorIterator<vector>& operator--();
+            VectorIterator<vector>& operator--(int);
+
+            bool operator==(const VectorIterator<vector> &other)const;
+            bool operator!=(const VectorIterator<vector> &other)const;
+            friend VectorIterator<vector> operator+(const VectorIterator& vec, int a);
+            friend VectorIterator<vector> operator+(int a, const VectorIterator& vec);
+            friend VectorIterator<vector> operator-(const VectorIterator& vec, int a);
+            friend VectorIterator<vector> operator-(int a,const VectorIterator& vec);
+
+            bool operator>(VectorIterator<vector> other) const;
+            bool operator>=(VectorIterator<vector> other) const;
+            bool operator<(VectorIterator<vector> other) const;
+            bool operator<=(VectorIterator<vector> other) const;
+            VectorIterator& operator+=(int amount);
+            VectorIterator& operator-=(int amount);
+      
+        // * -> rvalue (const I guess?)
+        // * -> lvalue (only for mutable) *a = t;
+        // multipass?
+        //a[n]
+        //a[n] with const, returns const refrence
+    };
+
+
+
+template <class T, class Allocator = std::allocator<T> >
+class Vector
+{
+    std::random_access_iterator_tag
 public:
     typedef T                                        value_type;//
     typedef Allocator                                allocator_type;//
@@ -22,7 +73,7 @@ public:
     typedef std::reverse_iterator<const_iterator>    const_reverse_iterator;//	std::reverse_iterator<const_iterator>
 
 
-
+    
     // >>>>> member funcs 
     vector();
 
