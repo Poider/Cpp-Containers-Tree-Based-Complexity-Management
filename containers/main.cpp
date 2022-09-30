@@ -3,51 +3,58 @@
 #include <initializer_list>
 using namespace std;
 class inter{
-    int a;
-    public:
+    
+    public:int a;
     inter(int a): a(a) {};
     void print()
     {
         cout << this->a << endl;
     };
-    friend inter operator+(inter a, int b);
+    const inter* operator->() const{ return this;}
+   inter operator+( int b)
+   {
+    this->a += b;
+   };
     friend inter operator+(int b, inter a);
 };
-     inter operator+(inter a, int b)
-     {
-        return inter(a.a + b);
-     }
+    //  inter operator+(inter a, int b)
+    //  {
+    //     return inter(a.a + b);
+    //  }
      inter operator+(int b, inter a)
      {
         return inter(a.a + b);
      }
 
+
+
 int main()
 {
-    // allocator<int> myalloc;
+    allocator<int> myalloc;
 
-    // vector<int> a(10,1);
+    vector<int> a(3,1);
     
-    // vector<int>::iterator itB = a.begin();
-    // int b = 5;
-    // int c = 4;
-    // a.insert(itB,3);
-    // itB = a.begin(); 
-    // itB++;
-    // // cout << itB;
-    // a.insert(itB,4);
-    // // a.insert(itB++,b);
-    // // a.insert(itB++,b);
-    // vector<int>::iterator it = a.end();
-    // it--;
-    // for(;it!= a.begin();it--)
-    // cout << *it;
-    // cout << *it;
-    // //will segfault cus vector will re allocate each time so that ptr is freed already
+    vector<int>::iterator itB = a.begin();
+    int b = 5;
+    int c = 4;
+    for(int i = 0;i < 5;i++)
+        {
+            itB = a.begin();
+            a.insert(itB,i);
+        }
+    itB = a.begin();
+   for(;itB != a.end();itB++)
+        cout << *itB << " ";
+    cout << endl;
+    itB = a.begin();
+    itB++;
+    cout << itB[7];
+
 
     // inter test(1);
+    inter test( inter(1) + 3);
+    // int c = test->a;
 
-    inter test = 3 + inter(1);
-    test.print();
+    // test.print();
 
 }

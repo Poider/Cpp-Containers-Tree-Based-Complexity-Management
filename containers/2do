@@ -1,5 +1,9 @@
-change using to typedef in map and stack
-
 check in cpp reference header if the func is defined or not 
 
 in vector you only wanna allocate occassionally so allocate works
+
+check if iterators default constructor need to do smth
+
+test all iterator operations (check if stuff that should work with const works with const / shouldnt be changed)
+
+check if typedef the traits or make its own struct and include it

@@ -10,46 +10,129 @@ template <typename vector>
     class VectorIterator
 {
     public :
-        typedef typename vector::value_type                     value_type;
-        typedef typename std::ptrdiff_t                         difference_type;
-        typedef typename std::random_access_iterator_tag        iterator_category;
-        typedef typename value_type*                            pointer;
-        typedef typename value_type&                            reference;
+        typedef typename vector::value_type                 value_type;
+        typedef typename std::ptrdiff_t                     difference_type;
+        typedef typename std::random_access_iterator_tag    iterator_category;
+        typedef typename vector::value_type*                pointer;
+        typedef typename vector::value_type&                reference;
 
     private :
         pointer ptr;
 
     public :
-        VectorIterator();//default constructible only from forward iterator and ahead
-        VectorIterator(const VectorIterator<vector> &other);
-        VectorIterator<vector>& operator=(const VectorIterator<vector> &other);
-        ~VectorIterator();
+        //default constructible only from forward iterator and ahead
+        VectorIterator(){};
+        VectorIterator(const VectorIterator<vector> &other): ptr(other.ptr) {};
+        VectorIterator<vector>& operator=(const VectorIterator<vector> &other): ptr(other.ptr)
+        {
+            return *this;
+        };
+        ~VectorIterator(){};
 
         //increments
-            VectorIterator<vector>& operator++();
-            VectorIterator<vector>& operator++(int);
-            VectorIterator<vector>& operator--();
-            VectorIterator<vector>& operator--(int);
+            VectorIterator<vector>& operator++()//++x
+            {
+                ptr++;
+                return *this;
+            };
+            VectorIterator<vector> operator++(int)//x++
+            {
+                VectorIterator<vector> temp = *this;
+                ptr++;
+                return temp;
+            };
+            VectorIterator<vector>& operator--()
+            {
+                ptr--;
+                return *this;
+            };
+            VectorIterator<vector>& operator--(int)
+            {
+                VectorIterator<vector> temp = *this;
+                ptr--;
+                return temp;
+            };
 
-            bool operator==(const VectorIterator<vector> &other)const;
-            bool operator!=(const VectorIterator<vector> &other)const;
-            friend VectorIterator<vector> operator+(const VectorIterator& vec, int a);
-            friend VectorIterator<vector> operator+(int a, const VectorIterator& vec);
-            friend VectorIterator<vector> operator-(const VectorIterator& vec, int a);
-            friend VectorIterator<vector> operator-(int a,const VectorIterator& vec);
+            bool operator==(const VectorIterator<vector> &other)const
+            {
+                return(ptr == other.ptr);
+            };
+            bool operator!=(const VectorIterator<vector> &other)const
+            {
+                return(ptr != other.ptr);
+            };
+            VectorIterator<vector> operator+(int a)
+            {
+                VectorIterator<vector>  temp;
+                temp.ptr = ptr + a;
+                return temp;
+            };
+            friend VectorIterator<vector> operator+(int a, const VectorIterator<vector>& vec);
+            VectorIterator<vector> operator-(int a)
+            {
+                VectorIterator<vector>  temp;
+                temp.ptr = ptr - a;
+                return temp;
+            };
+            friend VectorIterator<vector> operator-(int a,const VectorIterator<vector>& vec);
 
-            bool operator>(VectorIterator<vector> other) const;
-            bool operator>=(VectorIterator<vector> other) const;
-            bool operator<(VectorIterator<vector> other) const;
-            bool operator<=(VectorIterator<vector> other) const;
+            bool operator>(VectorIterator<vector> other) const
+            {
+                return (ptr > other.ptr);
+            };
+            bool operator>=(VectorIterator<vector> other) const
+            {
+                return (ptr >= other.ptr);
+            };
+            bool operator<(VectorIterator<vector> other) const
+            {
+                return (ptr < other.ptr);
+            };
+            bool operator<=(VectorIterator<vector> other) const
+            {
+                return (ptr <= other.ptr);
+            };
             VectorIterator& operator+=(int amount);
             VectorIterator& operator-=(int amount);
-      
-        // * -> rvalue (const I guess?)
-        // * -> lvalue (only for mutable) *a = t;
+            
+            /*
+            //operator * -> const op const for lvalue
+            //operator * -> not const for rvalue
+            */
+            const pointer operator->() const
+            {
+                return ptr;
+            };
+            const reference operator*() const
+            {
+                return *ptr;
+            };
+            pointer operator->()
+            {
+                return ptr;
+            };
+            reference operator*()
+            {
+                return *ptr;
+            };
+
+            /**
+             * @explanation
+             * 
+             [] is the ptr + number * hops
+             op [] const op const // for read only in const objs
+             op [] not const for writing
+            */
+            reference operator[](int index)
+            {
+                return *(ptr + index);
+            };
+            const reference operator[](int index)const
+            {
+                return *(ptr + index);
+            };
+
         // multipass?
-        //a[n]
-        //a[n] with const, returns const refrence
     };
 
 
@@ -57,7 +140,7 @@ template <typename vector>
 template <class T, class Allocator = std::allocator<T> >
 class Vector
 {
-    std::random_access_iterator_tag
+
 public:
     typedef T                                        value_type;//
     typedef Allocator                                allocator_type;//
@@ -173,8 +256,20 @@ public:
                 std::vector<T,Alloc>& rhs );
 };
 
-
-
+template <class vector>
+VectorIterator<vector> operator-(int a,const VectorIterator<vector>& vec)
+{
+    VectorIterator<vector>  temp;
+    temp = vec.operator-(a);
+    return (temp);
+};
+template <class vector>
+VectorIterator<vector> operator+(int a, const VectorIterator<vector>& vec)
+{
+    VectorIterator<vector>  temp;
+    temp = vec.operator+(a);
+    return (temp);
+};
 
 
 #endif
