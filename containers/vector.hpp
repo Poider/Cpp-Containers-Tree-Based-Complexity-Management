@@ -2,6 +2,7 @@
 #define _my_vector
 
 #include <memory>
+#include <algorithm>
 // #include <cstdlib>
 //namespace
 
@@ -14,8 +15,9 @@ template <typename vector>
         typedef typename std::ptrdiff_t                     difference_type;
         typedef typename std::random_access_iterator_tag    iterator_category;
         typedef typename vector::value_type*                pointer;
+        typedef const typename vector::value_type*          const_pointer;
         typedef typename vector::value_type&                reference;
-
+        typedef const typename vector::value_type&          const_reference;
     private :
         pointer ptr;
 
@@ -23,8 +25,9 @@ template <typename vector>
         //default constructible only from forward iterator and ahead
         VectorIterator(){};
         VectorIterator(const VectorIterator<vector> &other): ptr(other.ptr) {};
-        VectorIterator<vector>& operator=(const VectorIterator<vector> &other): ptr(other.ptr)
+        VectorIterator<vector>& operator=(const VectorIterator<vector> &other)
         {
+            ptr = other.ptr;
             return *this;
         };
         ~VectorIterator(){};
@@ -99,11 +102,11 @@ template <typename vector>
             //operator * -> const op const for lvalue
             //operator * -> not const for rvalue
             */
-            const pointer operator->() const
+            const_pointer operator->() const
             {
                 return ptr;
             };
-            const reference operator*() const
+            const_reference operator*() const
             {
                 return *ptr;
             };
@@ -127,7 +130,7 @@ template <typename vector>
             {
                 return *(ptr + index);
             };
-            const reference operator[](int index)const
+            const_reference operator[](int index)const
             {
                 return *(ptr + index);
             };
@@ -138,7 +141,7 @@ template <typename vector>
 
 
 template <class T, class Allocator = std::allocator<T> >
-class Vector
+class vector
 {
 
 public:
@@ -146,8 +149,8 @@ public:
     typedef Allocator                                allocator_type;//
     typedef typename allocator_type::reference       reference;//value_type&
     typedef typename allocator_type::const_reference const_reference;//const value_type&
-    typedef implementation-defined                   iterator;/LegacyRandomAccessIterator and LegacyContiguousIterator to value_type */
-    typedef implementation-defined                   const_iterator; /*LegacyRandomAccessIterator and LegacyContiguousIterator to const value_type */
+    typedef VectorIterator<T>                 iterator;//LegacyRandomAccessIterator and LegacyContiguousIterator to value_type 
+    typedef const VectorIterator<T>                    const_iterator; //LegacyRandomAccessIterator and LegacyContiguousIterator to const value_type 
     typedef typename allocator_type::size_type       size_type;//std::size_t   
     typedef typename allocator_type::difference_type difference_type;// usually std::ptrdiff_t
     typedef typename allocator_type::pointer         pointer;//Allocator::pointer 
@@ -158,25 +161,87 @@ public:
 
     
     // >>>>> member funcs 
-    vector();
+    vector()
+    {
+        allocator_type my_alloc;
+        container = my_alloc.allocate(0);
+        _size = 0;
+        _capacity = 0;
+    };
 
-    explicit vector(const Allocator &alloc);
+    explicit vector(const Allocator &alloc)
+    {
+        container = alloc.allocate(0);
+        _size = 0;
+        _capacity = 0;
+    };
 
     explicit vector(size_type count,
                     const T &value = T(),
-                    const Allocator &alloc = Allocator());
+                    const Allocator &alloc = Allocator())
+                    {
+ /*!!*/                 _size = count;
+/*!!*/                  _capacity = count;
+                        container = alloc.allocate(count);
+                        for(size_t i = 0; i < count; ++i)
+                            alloc.construct(container + i, value);
+                    };
 
     template <class InputIt>
     vector(InputIt first, InputIt last,
-           const Allocator &alloc = Allocator());
+           const Allocator &alloc = Allocator())
+           {
+                size_t s = std::distance(first,last);
+                container = alloc.allocate(s);
+                for(size_t i = 0; i < s; ++i)
+                    container[i] = first[i];
+           };
 
-    vector(const vector &other);
+    vector(const vector &other)
+    {
+        Allocator alloc;
+        _size = other._size;
+        _capacity = other._capacity;
+        container = alloc.allocate(_capacity);
+        for(size_t i = 0; i < _capacity; ++i)
+        {
+            container[i] = other._container[i];
+        }
+    };
 
-    ~vector();
+    ~vector()
+    {
+        Allocator alloc;
+        if(_capacity)
+        {
+            for(size_t i = 0; i < _size; ++i)
+                alloc.destruct(container + i);
+            alloc.dealocate(container, _capacity);
+        }
+    };
 
-    vector& operator=( const vector& other );
+    vector& operator=( const vector& other )
+    {
+        Allocator alloc;
+        if(_capacity)
+        {
+            for(size_t i = 0; i < _size; ++i)
+                alloc.destruct(container + i);
+            alloc.dealocate(container, _capacity);
+        }
+        _size = other._size;
+        _capacity = other._capacity;
+        container = alloc.allocate(_capacity);
+        for(size_t i = 0; i < _capacity; ++i)
+        {
+            container[i] = other._container[i];
+        }
+    };
 
-    void assign( size_type count, const T& value );
+    void assign( size_type count, const T& value )
+    {
+        
+    };
 
     template <class InputIt>
     void assign(InputIt first, InputIt last);
@@ -232,28 +297,50 @@ public:
     void swap( vector& other );
 
     //  >>>>> nonmember funcs
-    template< class T, class Alloc >
-    bool operator==( const std::vector<T,Alloc>& lhs,
-                    const std::vector<T,Alloc>& rhs );
-    template< class T, class Alloc >
-    bool operator!=( const std::vector<T,Alloc>& lhs,
-                    const std::vector<T,Alloc>& rhs );
-    template< class T, class Alloc >
-    bool operator<( const std::vector<T,Alloc>& lhs,
-                    const std::vector<T,Alloc>& rhs );
-    template< class T, class Alloc >
-    bool operator<=( const std::vector<T,Alloc>& lhs,
-                    const std::vector<T,Alloc>& rhs );
-    template< class T, class Alloc >
-    bool operator>( const std::vector<T,Alloc>& lhs,
-                    const std::vector<T,Alloc>& rhs );
-    template< class T, class Alloc >
-    bool operator>=( const std::vector<T,Alloc>& lhs,
-                    const std::vector<T,Alloc>& rhs );
+    // template< class T, class Alloc >
+    // bool operator==( const std::vector<T,Alloc>& lhs,
+    //                 const std::vector<T,Alloc>& rhs );
+    // template< class T, class Alloc >
+    // bool operator!=( const std::vector<T,Alloc>& lhs,
+    //                 const std::vector<T,Alloc>& rhs );
+    // template< class T, class Alloc >
+    // bool operator<( const std::vector<T,Alloc>& lhs,
+    //                 const std::vector<T,Alloc>& rhs );
+    // template< class T, class Alloc >
+    // bool operator<=( const std::vector<T,Alloc>& lhs,
+    //                 const std::vector<T,Alloc>& rhs );
+    // template< class T, class Alloc >
+    // bool operator>( const std::vector<T,Alloc>& lhs,
+    //                 const std::vector<T,Alloc>& rhs );
+    // template< class T, class Alloc >
+    // bool operator>=( const std::vector<T,Alloc>& lhs,
+    //                 const std::vector<T,Alloc>& rhs );
 
-    template< class T, class Alloc >
-        void swap( std::vector<T,Alloc>& lhs,
-                std::vector<T,Alloc>& rhs );
+    // template< class T, class Alloc >
+    //     void swap( std::vector<T,Alloc>& lhs,
+    //             std::vector<T,Alloc>& rhs );
+
+    private:
+    T *container;
+    size_t _size;
+    size_t _capacity;
+
+    void double_up()
+    {
+        Allocator alloc;
+        size_t temp_capacity = _capacity;
+        _capacity = _capacity * 2;
+        T* temp_container = container;
+        container = alloc.allocate(_capacity)
+        for( size_t i = 0; i < _size; ++i )
+            alloc.construct(container + i, temp_container[i]);
+        if(temp_capacity)
+        {
+            for(size_t i = 0; i < _size; ++i)
+                alloc.destruct(temp_container + i);
+            alloc.dealocate(temp_container, temp_capacity);
+        }    
+    };
 };
 
 template <class vector>

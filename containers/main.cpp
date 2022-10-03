@@ -1,6 +1,7 @@
 #include <iostream>
 #include <vector>
 #include <initializer_list>
+#include "vector.hpp"
 using namespace std;
 class inter{
     
@@ -32,26 +33,25 @@ int main()
 {
     allocator<int> myalloc;
 
-    vector<int> a(3,1);
+//     vector<int> a(3,1);
     
-    vector<int>::iterator itB = a.begin();
-    int b = 5;
-    int c = 4;
-    for(int i = 0;i < 5;i++)
-        {
-            itB = a.begin();
-            a.insert(itB,i);
-        }
-    itB = a.begin();
-   for(;itB != a.end();itB++)
-        cout << *itB << " ";
-    cout << endl;
-    itB = a.begin();
-    itB++;
-    cout << itB[7];
+//     vector<int>::iterator itB = a.begin();
+//     int b = 5;
+//     int c = 4;
+//     for(int i = 0;i < 5;i++)
+//         {
+//             itB = a.begin();
+//             a.insert(itB,i);
+//         }
+//     itB = a.begin();
+//    for(;itB != a.end();itB++)
+//         cout << *itB << " ";
+//     cout << endl;
+//     itB = a.begin();
+//     itB++;
+//     cout << itB[7];
 
 
-    // inter test(1);
     inter test( inter(1) + 3);
     // int c = test->a;
 

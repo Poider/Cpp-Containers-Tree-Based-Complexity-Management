@@ -7,3 +7,12 @@ check if iterators default constructor need to do smth
 test all iterator operations (check if stuff that should work with const works with const / shouldnt be changed)
 
 check if typedef the traits or make its own struct and include it
+
+check if typdef const typename works // I think it does
+
+check if I need to make const_iterator class or what i did is good
+
+allocate sizeof
+construct(allocatedptr, value);
+
+if capacity is not enough double
