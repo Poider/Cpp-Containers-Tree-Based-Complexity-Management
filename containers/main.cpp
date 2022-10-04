@@ -1,8 +1,10 @@
 #include <iostream>
 #include <vector>
 #include <initializer_list>
-#include "vector.hpp"
+#include <algorithm>
+#include <iterator>
 using namespace std;
+
 class inter{
     
     public:int a;
@@ -33,28 +35,39 @@ int main()
 {
     allocator<int> myalloc;
 
-//     vector<int> a(3,1);
+    vector<int> a(3,1);
     
-//     vector<int>::iterator itB = a.begin();
-//     int b = 5;
-//     int c = 4;
-//     for(int i = 0;i < 5;i++)
-//         {
-//             itB = a.begin();
-//             a.insert(itB,i);
-//         }
-//     itB = a.begin();
+    vector<int>::iterator itB = a.begin();
+    int b = 5;
+    int c = 4;
+    for(int i = 0;i < 5;i++)
+        {
+            itB = a.begin();
+            a.insert(itB,i);
+        }
+    itB = a.begin();
+
+    vector<int>::reverse_iterator itC = a.rbegin();
+    // for(;itC != a.rend();itC++)
+    //     cout << *itC << " ";
+//     cout << *(itC + 3) << "\n";
 //    for(;itB != a.end();itB++)
 //         cout << *itB << " ";
+
+itC+= 3;
+std :: cout << *itC << std::endl;
+// if ((itC + 3) > itC)
+// std::cout << "reverse comparison";
+
 //     cout << endl;
 //     itB = a.begin();
 //     itB++;
 //     cout << itB[7];
 
 
-    inter test( inter(1) + 3);
+    const inter test( inter(1) + 3);
     // int c = test->a;
-
+    test->a;
     // test.print();
 
 }

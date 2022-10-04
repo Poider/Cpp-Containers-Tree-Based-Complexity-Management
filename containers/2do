@@ -16,3 +16,11 @@ allocate sizeof
 construct(allocatedptr, value);
 
 if capacity is not enough double
+
+const obj can only use const methods, thus we code const version so it uses it
+
+check if const iterator and const reverse iterator are actually const (test if you can modify stuff from a const iterator)
+
+change all size_t to size_type??
+
+while() double_up(); if theres a range of stuff added
