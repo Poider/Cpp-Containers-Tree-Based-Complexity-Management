@@ -79,7 +79,14 @@ template <typename vector>
                 temp.ptr = ptr + a;
                 return temp;
             };
-            friend ReverseVectorIterator<vector> operator-(int a,const ReverseVectorIterator<vector>& vec);
+
+            difference_type operator-(ReverseVectorIterator<vector> other)
+            {
+                difference_type a;
+                
+                a = other.ptr - ptr;
+                return a;
+            };
 
             bool operator>(ReverseVectorIterator<vector> other) const
             {
@@ -222,7 +229,14 @@ template <typename vector>
                 temp.ptr = ptr - a;
                 return temp;
             };
-            friend VectorIterator<vector> operator-(int a,const VectorIterator<vector>& vec);
+
+            difference_type operator-(VectorIterator<vector> other)
+            {
+                difference_type a;
+                
+                a = other.ptr - ptr;
+                return a;
+            };
 
             bool operator>(VectorIterator<vector> other) const
             {
@@ -347,7 +361,10 @@ public:
                 size_t s = std::distance(first,last);
                 container = alloc.allocate(s);
                 for(size_t i = 0; i < s; ++i)
-                    container[i] = first[i];
+                {
+                    container[i] = *first;
+                    first++;
+                }
            };
 
     vector(const vector &other)
@@ -394,13 +411,20 @@ public:
     void assign( size_type count, const T& value )
     {
         allocator_type alloc;
+        
+        if(count < 0)
+            throw std::length_error("vector");
+
         for(size_t i = 0; i < _size; ++i)
             alloc.destroy(container[i]);
         _size = 0;
 
-        while(count > _capacity)
-            double_up();
-        
+        if(count > _capacity)
+        {
+            alloc.dealocate(container, _capacity);
+            container = alloc.allocate(count);
+            _capacity = count;
+        }
         _size = count;
         for(size_t i = 0; i < _size; ++i)
             alloc.construct(container[i],value);
@@ -410,18 +434,27 @@ public:
     void assign(InputIt first, InputIt last)
     {
         size_t count = std::distance(first,last);
+        if(count < 0)
+            throw std::length_error("vector");
         allocator_type alloc;
 
         for(size_t i = 0; i < _size; ++i)
             alloc.destroy(container[i]);
         _size = 0;
         
-        while(count > _capacity)
-            double_up();
+        if(count > _capacity)
+        {
+            alloc.dealocate(container, _capacity);
+            container = alloc.allocate(count);
+            _capacity = count;
+        }
         
         _size = count;
         for(size_t i = 0; i < _size; ++i)
-            alloc.construct(container[i],first[i]);
+        {
+            alloc.construct(container[i],*first);
+            first++;
+        }
     };
 
     allocator_type get_allocator() const
@@ -601,17 +634,98 @@ public:
         for(size_t i = _size; i > position; i--)
             container[i] = container[i - 1];
         alloc.construct(container + position, value); 
+        return(iterator(container + position));
     };// while() double_up(); if theres a range of stuff added
 
-    iterator insert(const_iterator pos, size_type count, const T &value);
+    iterator insert(const_iterator pos, size_type count, const T &value)
+    {
+        allocator_type alloc;
+        iterator first = begin();
+        size_t position = std::distance(begin(), pos);
+    
+        //iterator pos should be above size or return exception
+        if(pos > end() || pos < begin())
+            throw std::overflow_error("Container overflow");
+        if(count >= 0)
+            return pos;
+        _size = _size + count;
+        //reallocate if capacity < (new size) oldsize + (1 or count);
+        while(_size > _capacity)
+            double_up();
+        for(size_t i = _size; i > position; i--)
+            container[i] = container[i - count];
+        //construct it in each position
+        for(size_t i = 0; i < count; i++)
+            alloc.construct(container + position + i, value); 
+        return(iterator(container + position));
+    };
 
-    constexpr iterator insert(const_iterator pos, size_type count, const T &value);
+    // constexpr iterator insert(const_iterator pos, size_type count, const T &value);
 
     template <class InputIt>
-        iterator insert(const_iterator pos, InputIt first, InputIt last);
+        iterator insert(const_iterator pos, InputIt first, InputIt last)
+        {
+            allocator_type alloc;
+            iterator first = begin();
+            size_t position = std::distance(begin(), pos);
+            size_t count = std::distance(first, last);
+            //iterator pos should be above size or return exception
+            if(pos > end() || pos < begin())
+                throw std::overflow_error("Container overflow");
+            if(count >= 0)
+                return pos;
+            _size = _size + count;
+            //reallocate if capacity < (new size) oldsize + (1 or count);
+            while(_size > _capacity)
+                double_up();
+            for(size_t i = _size; i > position; i--)
+                container[i] = container[i - count];
+            //construct it in each position
+            for(size_t i = 0; i < count; i++)
+            {
+                alloc.construct(container + position + i, *first); 
+                first++;
+            }
+            return(iterator(container + position));
+        };
 
-    iterator erase( iterator pos );
-    iterator erase( iterator first, iterator last );
+    iterator erase( iterator pos )
+    {
+        size_t position = std::distance(begin(), pos);
+        allocator_type alloc;
+        
+        if(pos < end())
+        {
+            alloc.destroy(container + position);
+            for(size_t i = 0; i < _size; i++)
+                container[i] = container[i + 1];
+            _size--;
+            return pos;
+        }
+        else
+            throw std::overflow_error("container overflow");
+    };
+
+    iterator erase( iterator first, iterator last )
+    {
+        if(first == last)
+            return last;
+        if(first < last)
+        {
+            size_t first_pos = std::distance(begin(),first);
+            size_t second_pos = std::distance(begin(),last);
+            size_t count = second_pos - first_pos;
+            allocator_type alloc;
+            for(size_t i = 0; i < count; i++)
+                alloc.destroy(container + first_pos + i);
+            for(size_t i = 0; i < count; i++)
+                container[first_pos + i] = container[first_pos + i + count];
+            _size -= count;
+            return first;
+        }
+        else
+            throw std::overflow_error("container overflow");
+    };
     void push_back( const T& value );
     void pop_back();
     void resize( size_type count, T value = T() );
@@ -664,13 +778,7 @@ public:
     };
 };
 
-template <class vector>
-VectorIterator<vector> operator-(int a,const VectorIterator<vector>& vec)
-{
-    VectorIterator<vector>  temp;
-    temp = vec.operator-(a);
-    return (temp);
-};
+
 template <class vector>
 VectorIterator<vector> operator+(int a, const VectorIterator<vector>& vec)
 {
@@ -679,13 +787,7 @@ VectorIterator<vector> operator+(int a, const VectorIterator<vector>& vec)
     return (temp);
 };
 
-template <class vector>
-ReverseVectorIterator<vector> operator-(int a,const ReverseVectorIterator<vector>& vec)
-{
-    ReverseVectorIterator<vector>  temp;
-    temp = vec.operator-(a);
-    return (temp);
-};
+
 template <class vector>
 ReverseVectorIterator<vector> operator+(int a, const ReverseVectorIterator<vector>& vec)
 {

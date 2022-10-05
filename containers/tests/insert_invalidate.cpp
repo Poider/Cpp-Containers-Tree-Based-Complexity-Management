@@ -14,14 +14,15 @@ int main()
     vector<int>::iterator end = numbers.end();
     vector<int>::iterator it = numbers.begin();
     vector<int>::iterator itest = it + 1;
+    // cout << *(end +1);
     // numbers.insert(numbers.end()  + 1, 4);
-    cout << std::distance(it,it);
+    // cout << std::distance(it,it);
     // cout << *itest;
     // cout << *end;
-    // for(;it!=numbers.end();it++)
-    // {
-    //     cout << *it << " ";
-    // }
+    for(;it!=numbers.end();it++)
+    {
+        cout << *it << " ";
+    }
 
     // if((numbers.end() + 3) > end)
     // cout << "bigger";
