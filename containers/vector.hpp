@@ -4,30 +4,33 @@
 #include <memory>
 #include <algorithm>
 // #include <cstdlib>
-//namespace
+namespace ft{
+template <class T, class Allocator>
+class vector;
 
-
-template <typename vector>
+template <typename vec>
     class ReverseVectorIterator
 {
     public :
-        typedef typename vector::value_type                 value_type;
+        typedef typename vec::value_type                 value_type;
         typedef typename std::ptrdiff_t                     difference_type;
+        typedef typename vec::size_type                    size_type;
         typedef typename std::random_access_iterator_tag    iterator_category;
-        typedef typename vector::value_type*                pointer;
-        typedef const typename vector::value_type*          const_pointer;
-        typedef typename vector::value_type&                reference;
-        typedef const typename vector::value_type&          const_reference;
+        typedef typename vec::value_type*                pointer;
+        typedef const typename vec::value_type*          const_pointer;
+        typedef typename vec::value_type&                reference;
+        typedef const typename vec::value_type&          const_reference;
     private :
         pointer ptr;
-        friend class vector;
-        VectorIterator(pointer ptr):ptr(ptr) 
+        template <class T1, class Allocator1>
+           friend class vector;
+        ReverseVectorIterator(pointer ptr):ptr(ptr) 
         {};
     public :
         //default constructible only from forward iterator and ahead
         ReverseVectorIterator(){};
-        ReverseVectorIterator(const ReverseVectorIterator<vector> &other): ptr(other.ptr) {};
-        ReverseVectorIterator<vector>& operator=(const ReverseVectorIterator<vector> &other)
+        ReverseVectorIterator(const ReverseVectorIterator<vec> &other): ptr(other.ptr) {};
+        ReverseVectorIterator<vec>& operator=(const ReverseVectorIterator<vec> &other)
         {
             ptr = other.ptr;
             return *this;
@@ -35,52 +38,52 @@ template <typename vector>
         ~ReverseVectorIterator(){};
 
         //increments
-            ReverseVectorIterator<vector>& operator++()//++x
+            ReverseVectorIterator<vec>& operator++()//++x
             {
                 ptr--;
                 return *this;
             };
-            ReverseVectorIterator<vector> operator++(int)//x++
+            ReverseVectorIterator<vec> operator++(int)//x++
             {
-                ReverseVectorIterator<vector> temp = *this;
+                ReverseVectorIterator<vec> temp = *this;
                 ptr--;
                 return temp;
             };
-            ReverseVectorIterator<vector>& operator--()
+            ReverseVectorIterator<vec>& operator--()
             {
                 ptr++;
                 return *this;
             };
-            ReverseVectorIterator<vector>& operator--(int)
+            ReverseVectorIterator<vec>& operator--(int)
             {
-                ReverseVectorIterator<vector> temp = *this;
+                ReverseVectorIterator<vec> temp = *this;
                 ptr++;
                 return temp;
             };
 
-            bool operator==(const ReverseVectorIterator<vector> &other)const
+            bool operator==(const ReverseVectorIterator<vec> &other)const
             {
                 return(ptr == other.ptr);
             };
-            bool operator!=(const ReverseVectorIterator<vector> &other)const
+            bool operator!=(const ReverseVectorIterator<vec> &other)const
             {
                 return(ptr != other.ptr);
             };
-            ReverseVectorIterator<vector> operator+(int a)
+            ReverseVectorIterator<vec> operator+(int a)
             {
-                ReverseVectorIterator<vector>  temp;
+                ReverseVectorIterator<vec>  temp;
                 temp.ptr = ptr - a;
                 return temp;
             };
-            friend ReverseVectorIterator<vector> operator+(int a, const ReverseVectorIterator<vector>& vec);
-            ReverseVectorIterator<vector> operator-(int a)
+            friend ReverseVectorIterator<vec> operator+(int a, const ReverseVectorIterator<vec>& vector);
+            ReverseVectorIterator<vec> operator-(int a)
             {
-                ReverseVectorIterator<vector>  temp;
+                ReverseVectorIterator<vec>  temp;
                 temp.ptr = ptr + a;
                 return temp;
             };
 
-            difference_type operator-(ReverseVectorIterator<vector> other)
+            difference_type operator-(ReverseVectorIterator<vec> other)
             {
                 difference_type a;
                 
@@ -88,19 +91,19 @@ template <typename vector>
                 return a;
             };
 
-            bool operator>(ReverseVectorIterator<vector> other) const
+            bool operator>(ReverseVectorIterator<vec> other) const
             {
                 return (ptr < other.ptr);
             };
-            bool operator>=(ReverseVectorIterator<vector> other) const
+            bool operator>=(ReverseVectorIterator<vec> other) const
             {
                 return (ptr <= other.ptr);
             };
-            bool operator<(ReverseVectorIterator<vector> other) const
+            bool operator<(ReverseVectorIterator<vec> other) const
             {
                 return (ptr > other.ptr);
             };
-            bool operator<=(ReverseVectorIterator<vector> other) const
+            bool operator<=(ReverseVectorIterator<vec> other) const
             {
                 return (ptr >= other.ptr);
             };
@@ -157,27 +160,29 @@ template <typename vector>
 
 
 
-template <typename vector>
+template <typename vec>
     class VectorIterator
 {
     public :
-        typedef typename vector::value_type                 value_type;
+        typedef typename vec::value_type                 value_type;
         typedef typename std::ptrdiff_t                     difference_type;
+        typedef typename vec::size_type                    size_type;
         typedef typename std::random_access_iterator_tag    iterator_category;
-        typedef typename vector::value_type*                pointer;
-        typedef const typename vector::value_type*          const_pointer;
-        typedef typename vector::value_type&                reference;
-        typedef const typename vector::value_type&          const_reference;
+        typedef typename vec::value_type*                pointer;
+        typedef const typename vec::value_type*          const_pointer;
+        typedef typename vec::value_type&                reference;
+        typedef const typename vec::value_type&          const_reference;
     private :
         pointer ptr;
-        friend class vector;
+        template <class T1, class Allocator1>
+           friend class vector;
         VectorIterator(pointer ptr):ptr(ptr) 
         {};
     public :
         //default constructible only from forward iterator and ahead
         VectorIterator(){};
-        VectorIterator(const VectorIterator<vector> &other): ptr(other.ptr) {};
-        VectorIterator<vector>& operator=(const VectorIterator<vector> &other)
+        VectorIterator(const VectorIterator<vec> &other): ptr(other.ptr) {};
+        VectorIterator<vec>& operator=(const VectorIterator<vec> &other)
         {
             ptr = other.ptr;
             return *this;
@@ -185,72 +190,72 @@ template <typename vector>
         ~VectorIterator(){};
 
         //increments
-            VectorIterator<vector>& operator++()//++x
+            VectorIterator<vec>& operator++()//++x
             {
                 ptr++;
                 return *this;
             };
-            VectorIterator<vector> operator++(int)//x++
+            VectorIterator<vec> operator++(int)//x++
             {
-                VectorIterator<vector> temp = *this;
+                VectorIterator<vec> temp = *this;
                 ptr++;
                 return temp;
             };
-            VectorIterator<vector>& operator--()
+            VectorIterator<vec>& operator--()
             {
                 ptr--;
                 return *this;
             };
-            VectorIterator<vector>& operator--(int)
+            VectorIterator<vec>& operator--(int)
             {
-                VectorIterator<vector> temp = *this;
+                VectorIterator<vec> temp = *this;
                 ptr--;
                 return temp;
             };
 
-            bool operator==(const VectorIterator<vector> &other)const
+            bool operator==(const VectorIterator<vec> &other)const
             {
                 return(ptr == other.ptr);
             };
-            bool operator!=(const VectorIterator<vector> &other)const
+            bool operator!=(const VectorIterator<vec> &other)const
             {
                 return(ptr != other.ptr);
             };
-            VectorIterator<vector> operator+(int a)
+            VectorIterator<vec> operator+(int a)
             {
-                VectorIterator<vector>  temp;
+                VectorIterator<vec>  temp;
                 temp.ptr = ptr + a;
                 return temp;
             };
-            friend VectorIterator<vector> operator+(int a, const VectorIterator<vector>& vec);
-            VectorIterator<vector> operator-(int a)
+            friend VectorIterator<vec> operator+(int a, const VectorIterator<vec>& vector);
+            VectorIterator<vec> operator-(int a)
             {
-                VectorIterator<vector>  temp;
+                VectorIterator<vec>  temp;
                 temp.ptr = ptr - a;
                 return temp;
             };
 
-            difference_type operator-(VectorIterator<vector> other)
+            difference_type operator-(VectorIterator<vec> other)
             {
                 difference_type a;
                 
-                a = other.ptr - ptr;
+                a = ptr - other.ptr;
                 return a;
             };
 
-            bool operator>(VectorIterator<vector> other) const
+            bool operator>(VectorIterator<vec> other) const
             {
                 return (ptr > other.ptr);
             };
-            bool operator>=(VectorIterator<vector> other) const
+            bool operator>=(VectorIterator<vec> other) const
             {
                 return (ptr >= other.ptr);
             };
-            bool operator<(VectorIterator<vector> other) const
+            bool operator<(VectorIterator<vec> other) const
             {
                 return (ptr < other.ptr);
             };
-            bool operator<=(VectorIterator<vector> other) const
+            bool operator<=(VectorIterator<vec> other) const
             {
                 return (ptr <= other.ptr);
             };
@@ -316,14 +321,14 @@ public:
     typedef Allocator                                allocator_type;//
     typedef typename allocator_type::reference       reference;//value_type&
     typedef typename allocator_type::const_reference const_reference;//const value_type&
-    typedef VectorIterator<T>                 iterator;//LegacyRandomAccessIterator and LegacyContiguousIterator to value_type 
-    typedef const VectorIterator<T>                    const_iterator; //LegacyRandomAccessIterator and LegacyContiguousIterator to const value_type 
-    typedef typename allocator_type::size_type       size_type;//std::size_t   
+    typedef VectorIterator<vector>                 iterator;//LegacyRandomAccessIterator and LegacyContiguousIterator to value_type 
+    typedef const VectorIterator<vector>                    const_iterator; //LegacyRandomAccessIterator and LegacyContiguousIterator to const value_type 
+    typedef typename allocator_type::size_type       size_type;//std::size_t  
     typedef typename allocator_type::difference_type difference_type;// usually std::ptrdiff_t
     typedef typename allocator_type::pointer         pointer;//Allocator::pointer 
     typedef typename allocator_type::const_pointer   const_pointer;//Allocator::const_pointer 
-    typedef  ReverseVectorIterator<T>         reverse_iterator;//std::reverse_iterator<iterator>
-    typedef const ReverseVectorIterator<T>   const_reverse_iterator;//	std::reverse_iterator<const_iterator>
+    typedef  ReverseVectorIterator<vector>         reverse_iterator;//std::reverse_iterator<iterator>
+    typedef const ReverseVectorIterator<vector>   const_reverse_iterator;//	std::reverse_iterator<const_iterator>
 
 
     
@@ -350,7 +355,7 @@ public:
                         _size = count;
                         _capacity = count;
                         container = alloc.allocate(count);
-                        for(size_t i = 0; i < count; ++i)
+                        for(size_type i = 0; i < count; ++i)
                             alloc.construct(container + i, value);
                     };
 
@@ -358,9 +363,9 @@ public:
     vector(InputIt first, InputIt last,
            const Allocator &alloc = Allocator())
            {
-                size_t s = std::distance(first,last);
+                size_type s = std::distance(first,last);
                 container = alloc.allocate(s);
-                for(size_t i = 0; i < s; ++i)
+                for(size_type i = 0; i < s; ++i)
                 {
                     container[i] = *first;
                     first++;
@@ -373,7 +378,7 @@ public:
         _size = other._size;
         _capacity = other._capacity;
         container = alloc.allocate(_capacity);
-        for(size_t i = 0; i < _capacity; ++i)
+        for(size_type i = 0; i < _capacity; ++i)
         {
             container[i] = other._container[i];
         }
@@ -384,9 +389,9 @@ public:
         allocator_type alloc;
         if(_capacity)
         {
-            for(size_t i = 0; i < _size; ++i)
+            for(size_type i = 0; i < _size; ++i)
                 alloc.destroy(container + i);
-            alloc.dealocate(container, _capacity);
+            alloc.deallocate(container, _capacity);
         }
     };
 
@@ -395,14 +400,14 @@ public:
         allocator_type alloc;
         if(_capacity)
         {
-            for(size_t i = 0; i < _size; ++i)
+            for(size_type i = 0; i < _size; ++i)
                 alloc.destroy(container + i);
-            alloc.dealocate(container, _capacity);
+            alloc.deallocate(container, _capacity);
         }
         _size = other._size;
         _capacity = other._capacity;
         container = alloc.allocate(_capacity);
-        for(size_t i = 0; i < _capacity; ++i)
+        for(size_type i = 0; i < _capacity; ++i)
         {
             container[i] = other._container[i];
         }
@@ -415,44 +420,44 @@ public:
         if(count < 0)
             throw std::length_error("vector");
 
-        for(size_t i = 0; i < _size; ++i)
-            alloc.destroy(container[i]);
+        for(size_type i = 0; i < _size; ++i)
+            alloc.destroy(container + i);
         _size = 0;
 
         if(count > _capacity)
         {
-            alloc.dealocate(container, _capacity);
+            alloc.deallocate(container, _capacity);
             container = alloc.allocate(count);
             _capacity = count;
         }
         _size = count;
-        for(size_t i = 0; i < _size; ++i)
-            alloc.construct(container[i],value);
+        for(size_type i = 0; i < _size; ++i)
+            alloc.construct(&container[i],value);
     };
 
     template <class InputIt>
     void assign(InputIt first, InputIt last)
     {
-        size_t count = std::distance(first,last);
+        size_type count = std::distance(first,last);
         if(count < 0)
             throw std::length_error("vector");
         allocator_type alloc;
 
-        for(size_t i = 0; i < _size; ++i)
-            alloc.destroy(container[i]);
+        for(size_type i = 0; i < _size; ++i)
+            alloc.destroy(container + i);
         _size = 0;
         
         if(count > _capacity)
         {
-            alloc.dealocate(container, _capacity);
+            alloc.deallocate(container, _capacity);
             container = alloc.allocate(count);
             _capacity = count;
         }
         
         _size = count;
-        for(size_t i = 0; i < _size; ++i)
+        for(size_type i = 0; i < _size; ++i)
         {
-            alloc.construct(container[i],*first);
+            alloc.construct(&container[i],*first);
             first++;
         }
     };
@@ -467,13 +472,13 @@ public:
     reference at( size_type pos )
     {
         if(pos >= _size)
-            throw std::out_of_range;
+            throw std::out_of_range("vector");
         return container[pos];
     };
     const_reference at( size_type pos ) const
     {
         if(pos >= _size)
-            throw std::out_of_range;
+            throw std::out_of_range("vector");;
         return container[pos];
     };
     reference operator[]( size_type pos )
@@ -580,21 +585,21 @@ public:
     void reserve( size_type new_cap )
     {
         if(new_cap > max_size())
-            throw std::length_error();
+            throw std::length_error("vector");
         if(_capacity < new_cap)
         {
             allocator_type alloc;
-            size_t temp_capacity = _capacity;
+            size_type temp_capacity = _capacity;
             _capacity = new_cap;
             T *temp_container = container;
             container = alloc.allocate(_capacity);
-            for (size_t i = 0; i < _size; ++i)
+            for (size_type i = 0; i < _size; ++i)
                 alloc.construct(container + i, temp_container[i]);
             if (temp_capacity)
             {
-                for (size_t i = 0; i < _size; ++i)
+                for (size_type i = 0; i < _size; ++i)
                     alloc.destroy(temp_container + i);
-                alloc.dealocate(temp_container, temp_capacity);
+                alloc.deallocate(temp_container, temp_capacity);
             }
         }
     
@@ -608,11 +613,11 @@ public:
     void clear()
     {
         allocator_type alloc;
-        for (size_t i = 0; i < _size; ++i)
+        for (size_type i = 0; i < _size; ++i)
         {
             alloc.destroy(container + i);
         }
-        alloc.dealocate(container, _capacity);
+        alloc.deallocate(container, _capacity);
         _size = 0;
         alloc.allocate(_capacity);
     };
@@ -621,7 +626,7 @@ public:
     {
         allocator_type alloc;
         iterator first = begin();
-        size_t position = std::distance(begin());
+        size_type position = std::distance(begin(),pos);
     
         //iterator pos should be above size or return exception
         if(pos > end() || pos < begin())
@@ -630,8 +635,8 @@ public:
         _size++;
         //reallocate if capacity < (new size) oldsize + (1 or count);
         if(_size > _capacity)
-            double_up();
-        for(size_t i = _size; i > position; i--)
+            double_up(_capacity * 2);
+        for(size_type i = _size; i > position; i--)
             container[i] = container[i - 1];
         alloc.construct(container + position, value); 
         return(iterator(container + position));
@@ -641,22 +646,23 @@ public:
     {
         allocator_type alloc;
         iterator first = begin();
-        size_t position = std::distance(begin(), pos);
-    
+        size_type position = std::distance(begin(), pos);
         //iterator pos should be above size or return exception
         if(pos > end() || pos < begin())
             throw std::overflow_error("Container overflow");
-        if(count >= 0)
+               
+        if(count <= 0)
             return pos;
         _size = _size + count;
         //reallocate if capacity < (new size) oldsize + (1 or count);
         while(_size > _capacity)
-            double_up();
-        for(size_t i = _size; i > position; i--)
+            double_up(_capacity * 2);
+        for(size_type i = _size; i > position; i--)
             container[i] = container[i - count];
         //construct it in each position
-        for(size_t i = 0; i < count; i++)
+        for(size_type i = 0; i < count; i++)
             alloc.construct(container + position + i, value); 
+         
         return(iterator(container + position));
     };
 
@@ -666,22 +672,21 @@ public:
         iterator insert(const_iterator pos, InputIt first, InputIt last)
         {
             allocator_type alloc;
-            iterator first = begin();
-            size_t position = std::distance(begin(), pos);
-            size_t count = std::distance(first, last);
+            size_type position = std::distance(begin(), pos);
+            size_type count = std::distance(first, last);
             //iterator pos should be above size or return exception
             if(pos > end() || pos < begin())
                 throw std::overflow_error("Container overflow");
-            if(count >= 0)
+            if(count <= 0)
                 return pos;
             _size = _size + count;
             //reallocate if capacity < (new size) oldsize + (1 or count);
             while(_size > _capacity)
-                double_up();
-            for(size_t i = _size; i > position; i--)
+                double_up(_capacity * 2);
+            for(size_type i = _size; i > position; i--)
                 container[i] = container[i - count];
             //construct it in each position
-            for(size_t i = 0; i < count; i++)
+            for(size_type i = 0; i < count; i++)
             {
                 alloc.construct(container + position + i, *first); 
                 first++;
@@ -691,13 +696,14 @@ public:
 
     iterator erase( iterator pos )
     {
-        size_t position = std::distance(begin(), pos);
+        size_type position = std::distance(begin(), pos);
+ 
         allocator_type alloc;
         
         if(pos < end())
         {
             alloc.destroy(container + position);
-            for(size_t i = 0; i < _size; i++)
+            for(size_type i = position; i < _size; i++)
                 container[i] = container[i + 1];
             _size--;
             return pos;
@@ -712,13 +718,13 @@ public:
             return last;
         if(first < last)
         {
-            size_t first_pos = std::distance(begin(),first);
-            size_t second_pos = std::distance(begin(),last);
-            size_t count = second_pos - first_pos;
+            size_type first_pos = std::distance(begin(),first);
+            size_type second_pos = std::distance(begin(),last);
+            size_type count = second_pos - first_pos;
             allocator_type alloc;
-            for(size_t i = 0; i < count; i++)
+            for(size_type i = 0; i < count; i++)
                 alloc.destroy(container + first_pos + i);
-            for(size_t i = 0; i < count; i++)
+            for(size_type i = 0; i < count; i++)
                 container[first_pos + i] = container[first_pos + i + count];
             _size -= count;
             return first;
@@ -726,75 +732,199 @@ public:
         else
             throw std::overflow_error("container overflow");
     };
-    void push_back( const T& value );
-    void pop_back();
-    void resize( size_type count, T value = T() );
-    void swap( vector& other );
+    void push_back( const T& value )
+    {
+        Allocator alloc;
+        if(_size + 1 > _capacity)
+            double_up(_capacity * 2);
+        alloc.construct(container + _size, value);
+        _size++;
+    };
+    
+    void pop_back()
+    {
+        Allocator alloc;
+        alloc.destroy(&container[_size - 1]);
+        _size--;
+    };
 
-    //  >>>>> nonmember funcs
-    // template< class T, class Alloc >
-    // bool operator==( const std::vector<T,Alloc>& lhs,
-    //                 const std::vector<T,Alloc>& rhs );
-    // template< class T, class Alloc >
-    // bool operator!=( const std::vector<T,Alloc>& lhs,
-    //                 const std::vector<T,Alloc>& rhs );
-    // template< class T, class Alloc >
-    // bool operator<( const std::vector<T,Alloc>& lhs,
-    //                 const std::vector<T,Alloc>& rhs );
-    // template< class T, class Alloc >
-    // bool operator<=( const std::vector<T,Alloc>& lhs,
-    //                 const std::vector<T,Alloc>& rhs );
-    // template< class T, class Alloc >
-    // bool operator>( const std::vector<T,Alloc>& lhs,
-    //                 const std::vector<T,Alloc>& rhs );
-    // template< class T, class Alloc >
-    // bool operator>=( const std::vector<T,Alloc>& lhs,
-    //                 const std::vector<T,Alloc>& rhs );
+    void resize( size_type count, T value = T() )
+    {
+        //if count < 0
+        Allocator alloc;
+        
+        if(count <= _size)
+        {
+            for(size_type i = count; i < _size; i++)
+            {
+                alloc.destroy(container + i);  
+            }
+            _size = count;
+        }
+        else
+        {
+            while(count > _capacity)
+                double_up(_capacity * 2);
+            for(size_type i = _size; i < _size + count; i++)
+            {
+                alloc.construct(&container[i], value);
+            }
+            _size += count;
+        }
+    };
+    void swap( vector& other )
+    {
+        T *temp = container;
+        size_type temp_cap = _capacity;
+        size_type temp_size = _size;
 
-    // template< class T, class Alloc >
-    //     void swap( std::vector<T,Alloc>& lhs,
-    //             std::vector<T,Alloc>& rhs );
+        container = other.container;
+        _capacity = other._capacity;
+        _size = other._size;
+
+        other.container = temp;
+        other._capacity = temp_cap;
+        other._size = temp_size;
+    };
+
 
     private:
     T *container;
-    size_t _size;
-    size_t _capacity;
+    size_type _size;
+    size_type _capacity;
 
-    void double_up()
+    // template<class inputIterator>
+    // size_t _distance(inputIterator first, inputIterator second)
+    // {
+    //     size_t distance = 0;
+    //     Allocator alloc;
+
+    //     while(first != second)
+    //     {
+    //         if(distance > alloc.max_size())
+    //             throw std::out_of_range(""
+    //     } 
+    // }
+
+    void double_up(size_type new_cap)
     {
         Allocator alloc;
-        size_t temp_capacity = _capacity;
-        _capacity = _capacity * 2;
+        size_type temp_capacity = _capacity;
+        _capacity = new_cap;
         T* temp_container = container;
         container = alloc.allocate(_capacity);
-        for( size_t i = 0; i < _size; ++i )
+        for( size_type i = 0; i < _size; ++i )
             alloc.construct(container + i, temp_container[i]);
         if(temp_capacity)
         {
-            for(size_t i = 0; i < _size; ++i)
+            for(size_type i = 0; i < _size; ++i)
                 alloc.destroy(temp_container + i);
-            alloc.dealocate(temp_container, temp_capacity);
+            alloc.deallocate(temp_container, temp_capacity);
         }    
     };
+    //  >>>>> nonmember funcs
+     template< class T1, class Alloc >
+    friend bool operator==( const std::vector<T1,Alloc>& lhs,
+                    const std::vector<T1,Alloc>& rhs );
+    template< class T1, class Alloc >
+    friend bool operator!=( const std::vector<T1,Alloc>& lhs,
+                    const std::vector<T1,Alloc>& rhs );
+    template< class T1, class Alloc >
+    friend bool operator<( const std::vector<T1,Alloc>& lhs,
+                    const std::vector<T1,Alloc>& rhs );
+    template< class T1, class Alloc >
+    friend bool operator<=( const std::vector<T1,Alloc>& lhs,
+                    const std::vector<T1,Alloc>& rhs );
+    template< class T1, class Alloc >
+    friend bool operator>( const std::vector<T1,Alloc>& lhs,
+                    const std::vector<T1,Alloc>& rhs );
+    template< class T1, class Alloc >
+    friend bool operator>=( const std::vector<T1,Alloc>& lhs,
+                    const std::vector<T1,Alloc>& rhs );
+
+    template< class T1, class Alloc >
+        friend void swap( std::vector<T1,Alloc>& lhs,
+                std::vector<T1,Alloc>& rhs );
 };
 
 
-template <class vector>
-VectorIterator<vector> operator+(int a, const VectorIterator<vector>& vec)
+template <class vec>
+VectorIterator<vec> operator+(int a, const VectorIterator<vec>& vector)
 {
-    VectorIterator<vector>  temp;
-    temp = vec.operator+(a);
+    VectorIterator<vec>  temp;
+    temp = vector.operator+(a);
     return (temp);
 };
 
 
-template <class vector>
-ReverseVectorIterator<vector> operator+(int a, const ReverseVectorIterator<vector>& vec)
+template <class vec>
+ReverseVectorIterator<vec> operator+(int a, const ReverseVectorIterator<vec>& vector)
 {
-    ReverseVectorIterator<vector>  temp;
-    temp = vec.operator+(a);
+    ReverseVectorIterator<vec>  temp;
+    temp = vector.operator+(a);
     return (temp);
 };
 
 
+ template< class T1, class Alloc >
+        bool operator==( const std::vector<T1,Alloc>& lhs,
+                    const std::vector<T1,Alloc>& rhs )
+                    {
+                        if( lhs.size() != rhs.size() )
+                            return false;
+                        for( size_t i = 0; i < lhs.size(); ++i )
+                            if(lhs.container[i] != rhs.container[i])
+                                return false;
+                        return true;
+                    };
+    template< class T1, class Alloc >
+        bool operator!=( const std::vector<T1,Alloc>& lhs,
+                    const std::vector<T1,Alloc>& rhs )
+                    {
+                        return (!(lhs == rhs));
+                    };
+
+    template< class T1, class Alloc >
+        bool operator<( const std::vector<T1,Alloc>& lhs,
+                    const std::vector<T1,Alloc>& rhs )
+                    {
+                        return (std::lexicographical_compare(lhs.begin(),lhs.end(),rhs.begin(),rhs.end()));
+                    };
+
+    template< class T1, class Alloc >
+        bool operator>( const std::vector<T1,Alloc>& lhs,
+                    const std::vector<T1,Alloc>& rhs )
+                    {
+                        return (rhs < lhs);
+                    };
+
+    template< class T1, class Alloc >
+        bool operator<=( const std::vector<T1,Alloc>& lhs,
+                    const std::vector<T1,Alloc>& rhs )
+                    {
+                        return (!(lhs > rhs));
+                    };
+                    
+    template< class T1, class Alloc >
+        bool operator>=( const std::vector<T1,Alloc>& lhs,
+                    const std::vector<T1,Alloc>& rhs )
+                    {
+                        return (!(lhs < rhs));
+                    };
+
+    template< class T1, class Alloc >
+            void swap( std::vector<T1,Alloc>& lhs,
+                std::vector<T1,Alloc>& rhs )
+                {
+                    lhs.swap(rhs);
+                };
+/*
+lexicographical comparison:
+Two ranges are compared element by element.
+The first mismatching element defines which range is lexicographically less or greater than the other.
+If one range is a prefix of another, the shorter range is lexicographically less than the other.
+If two ranges have equivalent elements and are of the same length, then the ranges are lexicographically equal.
+An empty range is lexicographically less than any non-empty range.
+Two empty ranges are lexicographically equal.*/
+};
 #endif

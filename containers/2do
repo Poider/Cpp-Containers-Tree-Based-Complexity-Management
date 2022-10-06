@@ -24,3 +24,5 @@ check if const iterator and const reverse iterator are actually const (test if y
 change all size_t to size_type??
 
 while() double_up(); if theres a range of stuff added
+
+when youre in the same scope, you put default args for template only on one declaration
