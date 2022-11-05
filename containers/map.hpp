@@ -1,12 +1,14 @@
 #ifndef _my_map
 #define _my_map
 #include <utility>
-
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <unistd.h>
 #include <map>
 
 namespace std {
   template<class Key, class T, class Compare = less<Key>,
-           class Allocator = allocator<pair<const Key, T>>>
+           class Allocator = std::allocator<pair<const Key, T>>>
   class map {
   public:
     // types
@@ -28,7 +30,6 @@ namespace std {
     typedef implementation-defined                   const_iterator;//LegacyBidirectionalIterator to const value_type
     typedef std::reverse_iterator<iterator>          reverse_iterator;//	std::reverse_iterator<iterator>
     typedef std::reverse_iterator<const_iterator>    const_reverse_iterator;//std::reverse_iterator<const_iterator>
-    std::make_pair
      class value_compare
         : public binary_function<value_type, value_type, bool>
     {

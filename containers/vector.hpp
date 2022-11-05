@@ -1,315 +1,24 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   vector.hpp                                         :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: mel-amma <mel-amma@student.42.fr>          +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2022/11/05 12:49:07 by mel-amma          #+#    #+#             */
+/*   Updated: 2022/11/05 16:09:01 by mel-amma         ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 #ifndef _my_vector
 #define _my_vector
-
 #include <memory>
 #include <algorithm>
+#include <iterator>
+#include "iterator_traits.hpp"
+#include "vector_iterators.hpp"
 // #include <cstdlib>
 namespace ft{
-template <class T, class Allocator>
-class vector;
-
-template <typename vec>
-    class ReverseVectorIterator
-{
-    public :
-        typedef typename vec::value_type                 value_type;
-        typedef typename std::ptrdiff_t                     difference_type;
-        typedef typename vec::size_type                    size_type;
-        typedef typename std::random_access_iterator_tag    iterator_category;
-        typedef typename vec::value_type*                pointer;
-        typedef const typename vec::value_type*          const_pointer;
-        typedef typename vec::value_type&                reference;
-        typedef const typename vec::value_type&          const_reference;
-    private :
-        pointer ptr;
-        template <class T1, class Allocator1>
-           friend class vector;
-        ReverseVectorIterator(pointer ptr):ptr(ptr) 
-        {};
-    public :
-        //default constructible only from forward iterator and ahead
-        ReverseVectorIterator(){};
-        ReverseVectorIterator(const ReverseVectorIterator<vec> &other): ptr(other.ptr) {};
-        ReverseVectorIterator<vec>& operator=(const ReverseVectorIterator<vec> &other)
-        {
-            ptr = other.ptr;
-            return *this;
-        };
-        ~ReverseVectorIterator(){};
-
-        //increments
-            ReverseVectorIterator<vec>& operator++()//++x
-            {
-                ptr--;
-                return *this;
-            };
-            ReverseVectorIterator<vec> operator++(int)//x++
-            {
-                ReverseVectorIterator<vec> temp = *this;
-                ptr--;
-                return temp;
-            };
-            ReverseVectorIterator<vec>& operator--()
-            {
-                ptr++;
-                return *this;
-            };
-            ReverseVectorIterator<vec>& operator--(int)
-            {
-                ReverseVectorIterator<vec> temp = *this;
-                ptr++;
-                return temp;
-            };
-
-            bool operator==(const ReverseVectorIterator<vec> &other)const
-            {
-                return(ptr == other.ptr);
-            };
-            bool operator!=(const ReverseVectorIterator<vec> &other)const
-            {
-                return(ptr != other.ptr);
-            };
-            ReverseVectorIterator<vec> operator+(int a)
-            {
-                ReverseVectorIterator<vec>  temp;
-                temp.ptr = ptr - a;
-                return temp;
-            };
-            friend ReverseVectorIterator<vec> operator+(int a, const ReverseVectorIterator<vec>& vector);
-            ReverseVectorIterator<vec> operator-(int a)
-            {
-                ReverseVectorIterator<vec>  temp;
-                temp.ptr = ptr + a;
-                return temp;
-            };
-
-            difference_type operator-(ReverseVectorIterator<vec> other)
-            {
-                difference_type a;
-                
-                a = other.ptr - ptr;
-                return a;
-            };
-
-            bool operator>(ReverseVectorIterator<vec> other) const
-            {
-                return (ptr < other.ptr);
-            };
-            bool operator>=(ReverseVectorIterator<vec> other) const
-            {
-                return (ptr <= other.ptr);
-            };
-            bool operator<(ReverseVectorIterator<vec> other) const
-            {
-                return (ptr > other.ptr);
-            };
-            bool operator<=(ReverseVectorIterator<vec> other) const
-            {
-                return (ptr >= other.ptr);
-            };
-            ReverseVectorIterator& operator+=(int amount)
-            {
-                ptr = ptr - amount;
-                return *this;
-            };
-            ReverseVectorIterator& operator-=(int amount)
-            {
-                ptr = ptr + amount;
-                return *this;
-            };
-            
-            /*
-            //operator * -> const op const for lvalue
-            //operator * -> not const for rvalue
-            */
-            const_pointer operator->() const
-            {
-                return ptr;
-            };
-            const_reference operator*() const
-            {
-                return *ptr;
-            };
-            pointer operator->()
-            {
-                return ptr;
-            };
-            reference operator*()
-            {
-                return *ptr;
-            };
-
-            /**
-             * @explanation
-             * 
-             [] is the ptr + number * hops
-             op [] const op const // for read only in const objs
-             op [] not const for writing
-            */
-            reference operator[](int index)
-            {
-                return *(ptr - index);
-            };
-            const_reference operator[](int index)const
-            {
-                return *(ptr - index);
-            };
-
-        // multipass?
-    };
-
-
-
-template <typename vec>
-    class VectorIterator
-{
-    public :
-        typedef typename vec::value_type                 value_type;
-        typedef typename std::ptrdiff_t                     difference_type;
-        typedef typename vec::size_type                    size_type;
-        typedef typename std::random_access_iterator_tag    iterator_category;
-        typedef typename vec::value_type*                pointer;
-        typedef const typename vec::value_type*          const_pointer;
-        typedef typename vec::value_type&                reference;
-        typedef const typename vec::value_type&          const_reference;
-    private :
-        pointer ptr;
-        template <class T1, class Allocator1>
-           friend class vector;
-        VectorIterator(pointer ptr):ptr(ptr) 
-        {};
-    public :
-        //default constructible only from forward iterator and ahead
-        VectorIterator(){};
-        VectorIterator(const VectorIterator<vec> &other): ptr(other.ptr) {};
-        VectorIterator<vec>& operator=(const VectorIterator<vec> &other)
-        {
-            ptr = other.ptr;
-            return *this;
-        };
-        ~VectorIterator(){};
-
-        //increments
-            VectorIterator<vec>& operator++()//++x
-            {
-                ptr++;
-                return *this;
-            };
-            VectorIterator<vec> operator++(int)//x++
-            {
-                VectorIterator<vec> temp = *this;
-                ptr++;
-                return temp;
-            };
-            VectorIterator<vec>& operator--()
-            {
-                ptr--;
-                return *this;
-            };
-            VectorIterator<vec>& operator--(int)
-            {
-                VectorIterator<vec> temp = *this;
-                ptr--;
-                return temp;
-            };
-
-            bool operator==(const VectorIterator<vec> &other)const
-            {
-                return(ptr == other.ptr);
-            };
-            bool operator!=(const VectorIterator<vec> &other)const
-            {
-                return(ptr != other.ptr);
-            };
-            VectorIterator<vec> operator+(int a)
-            {
-                VectorIterator<vec>  temp;
-                temp.ptr = ptr + a;
-                return temp;
-            };
-            friend VectorIterator<vec> operator+(int a, const VectorIterator<vec>& vector);
-            VectorIterator<vec> operator-(int a)
-            {
-                VectorIterator<vec>  temp;
-                temp.ptr = ptr - a;
-                return temp;
-            };
-
-            difference_type operator-(VectorIterator<vec> other)
-            {
-                difference_type a;
-                
-                a = ptr - other.ptr;
-                return a;
-            };
-
-            bool operator>(VectorIterator<vec> other) const
-            {
-                return (ptr > other.ptr);
-            };
-            bool operator>=(VectorIterator<vec> other) const
-            {
-                return (ptr >= other.ptr);
-            };
-            bool operator<(VectorIterator<vec> other) const
-            {
-                return (ptr < other.ptr);
-            };
-            bool operator<=(VectorIterator<vec> other) const
-            {
-                return (ptr <= other.ptr);
-            };
-            VectorIterator& operator+=(int amount)
-            {
-                ptr = ptr + amount;
-                return *this;
-            };
-            VectorIterator& operator-=(int amount)
-            {
-                ptr = ptr - amount;
-                return *this;
-            };
-            
-            /*
-            //operator * -> const op const for lvalue
-            //operator * -> not const for rvalue
-            */
-            const_pointer operator->() const
-            {
-                return ptr;
-            };
-            const_reference operator*() const
-            {
-                return *ptr;
-            };
-            pointer operator->()
-            {
-                return ptr;
-            };
-            reference operator*()
-            {
-                return *ptr;
-            };
-
-            /**
-             * @explanation
-             * 
-             [] is the ptr + number * hops
-             op [] const op const // for read only in const objs
-             op [] not const for writing
-            */
-            reference operator[](int index)
-            {
-                return *(ptr + index);
-            };
-            const_reference operator[](int index)const
-            {
-                return *(ptr + index);
-            };
-
-        // multipass?
-    };
-
 
 
 template <class T, class Allocator = std::allocator<T> >
@@ -321,22 +30,21 @@ public:
     typedef Allocator                                allocator_type;//
     typedef typename allocator_type::reference       reference;//value_type&
     typedef typename allocator_type::const_reference const_reference;//const value_type&
-    typedef VectorIterator<vector>                 iterator;//LegacyRandomAccessIterator and LegacyContiguousIterator to value_type 
-    typedef const VectorIterator<vector>                    const_iterator; //LegacyRandomAccessIterator and LegacyContiguousIterator to const value_type 
     typedef typename allocator_type::size_type       size_type;//std::size_t  
     typedef typename allocator_type::difference_type difference_type;// usually std::ptrdiff_t
     typedef typename allocator_type::pointer         pointer;//Allocator::pointer 
     typedef typename allocator_type::const_pointer   const_pointer;//Allocator::const_pointer 
-    typedef  ReverseVectorIterator<vector>         reverse_iterator;//std::reverse_iterator<iterator>
-    typedef const ReverseVectorIterator<vector>   const_reverse_iterator;//	std::reverse_iterator<const_iterator>
+    typedef VectorIterator<pointer>                 iterator;//LegacyRandomAccessIterator and LegacyContiguousIterator to value_type 
+    typedef VectorIterator<const_pointer>                    const_iterator; //LegacyRandomAccessIterator and LegacyContiguousIterator to const value_type 
+    typedef  ReverseVectorIterator<iterator>         reverse_iterator;//std::reverse_iterator<iterator>
+    typedef  ReverseVectorIterator<const_iterator>   const_reverse_iterator;//	std::reverse_iterator<const_iterator>
 
 
     
     // >>>>> member funcs 
     vector()
     {
-        allocator_type my_alloc;
-        container = my_alloc.allocate(0);
+        container = alloc.allocate(0);
         _size = 0;
         _capacity = 0;
     };
@@ -352,41 +60,41 @@ public:
                     const T &value = T(),
                     const Allocator &alloc = Allocator())
                     {
+                        this->alloc = alloc;
                         _size = count;
                         _capacity = count;
-                        container = alloc.allocate(count);
+                        container = this->alloc.allocate(count);
                         for(size_type i = 0; i < count; ++i)
-                            alloc.construct(container + i, value);
+                            this->alloc.construct(container + i, value);
                     };
 
     template <class InputIt>
     vector(InputIt first, InputIt last,
            const Allocator &alloc = Allocator())
            {
-                size_type s = std::distance(first,last);
-                container = alloc.allocate(s);
+                size_type s = (size_type)std::distance(first,last);
+                 this->alloc= alloc;
+                container = this->alloc.allocate(s);
                 for(size_type i = 0; i < s; ++i)
                 {
-                    container[i] = *first;
+                    this->alloc.construct(&container[i], *first);
                     first++;
                 }
            };
 
     vector(const vector &other)
     {
-        allocator_type alloc;
         _size = other._size;
         _capacity = other._capacity;
         container = alloc.allocate(_capacity);
         for(size_type i = 0; i < _capacity; ++i)
         {
-            container[i] = other._container[i];
+            container[i] = other.container[i];
         }
     };
 
     ~vector()
     {
-        allocator_type alloc;
         if(_capacity)
         {
             for(size_type i = 0; i < _size; ++i)
@@ -397,7 +105,6 @@ public:
 
     vector& operator=( const vector& other )
     {
-        allocator_type alloc;
         if(_capacity)
         {
             for(size_type i = 0; i < _size; ++i)
@@ -409,13 +116,13 @@ public:
         container = alloc.allocate(_capacity);
         for(size_type i = 0; i < _capacity; ++i)
         {
-            container[i] = other._container[i];
+            container[i] = other.container[i];
         }
+        return *this;
     };
 
     void assign( size_type count, const T& value )
     {
-        allocator_type alloc;
         
         if(count < 0)
             throw std::length_error("vector");
@@ -441,7 +148,6 @@ public:
         size_type count = std::distance(first,last);
         if(count < 0)
             throw std::length_error("vector");
-        allocator_type alloc;
 
         for(size_type i = 0; i < _size; ++i)
             alloc.destroy(container + i);
@@ -464,7 +170,6 @@ public:
 
     allocator_type get_allocator() const
     {
-        allocator_type alloc;
         return alloc;
     };
     
@@ -528,7 +233,7 @@ public:
     };
     const_iterator begin() const
     {
-        iterator it = iterator(container);
+        const_iterator it = const_iterator(container);
         return it;
     };
     iterator end()
@@ -577,8 +282,6 @@ public:
 
     size_type max_size() const
     {
-        allocator_type alloc;
-
         return (alloc.max_size());
     };
 
@@ -588,7 +291,6 @@ public:
             throw std::length_error("vector");
         if(_capacity < new_cap)
         {
-            allocator_type alloc;
             size_type temp_capacity = _capacity;
             _capacity = new_cap;
             T *temp_container = container;
@@ -612,7 +314,6 @@ public:
     // >>>>> modifiers
     void clear()
     {
-        allocator_type alloc;
         for (size_type i = 0; i < _size; ++i)
         {
             alloc.destroy(container + i);
@@ -624,9 +325,8 @@ public:
 
     iterator insert(const_iterator pos, const T &value)
     {
-        allocator_type alloc;
-        iterator first = begin();
-        size_type position = std::distance(begin(),pos);
+        const_iterator first = begin();
+        size_type position = std::distance(first,pos);
     
         //iterator pos should be above size or return exception
         if(pos > end() || pos < begin())
@@ -644,9 +344,8 @@ public:
 
     iterator insert(const_iterator pos, size_type count, const T &value)
     {
-        allocator_type alloc;
-        iterator first = begin();
-        size_type position = std::distance(begin(), pos);
+        const_iterator first = begin();
+        size_type position = std::distance(first, pos);
         //iterator pos should be above size or return exception
         if(pos > end() || pos < begin())
             throw std::overflow_error("Container overflow");
@@ -671,7 +370,6 @@ public:
     template <class InputIt>
         iterator insert(const_iterator pos, InputIt first, InputIt last)
         {
-            allocator_type alloc;
             size_type position = std::distance(begin(), pos);
             size_type count = std::distance(first, last);
             //iterator pos should be above size or return exception
@@ -698,7 +396,6 @@ public:
     {
         size_type position = std::distance(begin(), pos);
  
-        allocator_type alloc;
         
         if(pos < end())
         {
@@ -721,7 +418,6 @@ public:
             size_type first_pos = std::distance(begin(),first);
             size_type second_pos = std::distance(begin(),last);
             size_type count = second_pos - first_pos;
-            allocator_type alloc;
             for(size_type i = 0; i < count; i++)
                 alloc.destroy(container + first_pos + i);
             for(size_type i = 0; i < count; i++)
@@ -734,7 +430,6 @@ public:
     };
     void push_back( const T& value )
     {
-        Allocator alloc;
         if(_size + 1 > _capacity)
             double_up(_capacity * 2);
         alloc.construct(container + _size, value);
@@ -743,7 +438,6 @@ public:
     
     void pop_back()
     {
-        Allocator alloc;
         alloc.destroy(&container[_size - 1]);
         _size--;
     };
@@ -751,7 +445,6 @@ public:
     void resize( size_type count, T value = T() )
     {
         //if count < 0
-        Allocator alloc;
         
         if(count <= _size)
         {
@@ -792,12 +485,11 @@ public:
     T *container;
     size_type _size;
     size_type _capacity;
-
+    allocator_type alloc;
     // template<class inputIterator>
     // size_t _distance(inputIterator first, inputIterator second)
     // {
     //     size_t distance = 0;
-    //     Allocator alloc;
 
     //     while(first != second)
     //     {
@@ -808,7 +500,6 @@ public:
 
     void double_up(size_type new_cap)
     {
-        Allocator alloc;
         size_type temp_capacity = _capacity;
         _capacity = new_cap;
         T* temp_container = container;
@@ -848,22 +539,7 @@ public:
 };
 
 
-template <class vec>
-VectorIterator<vec> operator+(int a, const VectorIterator<vec>& vector)
-{
-    VectorIterator<vec>  temp;
-    temp = vector.operator+(a);
-    return (temp);
-};
 
-
-template <class vec>
-ReverseVectorIterator<vec> operator+(int a, const ReverseVectorIterator<vec>& vector)
-{
-    ReverseVectorIterator<vec>  temp;
-    temp = vector.operator+(a);
-    return (temp);
-};
 
 
  template< class T1, class Alloc >
@@ -921,7 +597,8 @@ ReverseVectorIterator<vec> operator+(int a, const ReverseVectorIterator<vec>& ve
 /*
 lexicographical comparison:
 Two ranges are compared element by element.
-The first mismatching element defines which range is lexicographically less or greater than the other.
+The first mismatching element de
+es which range is lexicographically less or greater than the other.
 If one range is a prefix of another, the shorter range is lexicographically less than the other.
 If two ranges have equivalent elements and are of the same length, then the ranges are lexicographically equal.
 An empty range is lexicographically less than any non-empty range.

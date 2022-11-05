@@ -26,3 +26,10 @@ change all size_t to size_type??
 while() double_up(); if theres a range of stuff added
 
 when youre in the same scope, you put default args for template only on one declaration
+
+maps cant have a duplicate key
+
+template<class T>
+struct a<T> ???? why is there a T on the struct name
+
+reverse iterator change it to take iterator as internal value 
