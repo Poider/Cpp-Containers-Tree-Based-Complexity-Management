@@ -33,21 +33,85 @@ using namespace std;
 
 
     //    std::cout << "___" <<position << std::endl;
+    #include <istream>
+    #include <string>
+    #include <iterator>
+    #include <sstream>
 int main()
 {
                         // std::vector<int>::iterator it3;
                         // std::vector<string>::iterator it4;
                         // it3 = it4;
 
-    ft::vector<int> tt;
+
+    // ft::vector<string> tt;
+    // std::string str[32];
+    // std::string str1[64];
+    // for(int i = 0; i < 32; i++)
+    // {
+    //     str[i] = "hi";
+    // }
+    // for(int i = 0; i < 64; i++)
+    // {
+    //     str1[i] = "hi";
+    // }
+
+
+    // tt.insert(tt.begin(), str, str + 32);
+    // for (size_t i = 0; i < tt.size(); i++)
+    // {
+    //     std::cout << tt[i] << std::endl;
+    // }
     
-    ft::vector<int> a((size_t)3,3);
-    // std::vector<int> b;
-    ft::vector<int>::iterator it;
-    it = a.begin();
-    ft::vector<int>::iterator it1;
-    it1 = it;
-    cout << *it1;
+    // tt.push_back(1);
+    // tt.push_back(1);
+    // tt.push_back(1);
+    // tt.insert(tt.begin(),tt.begin(),tt.end());
+    // for(unsigned int i = 0; i < tt.size();i++)
+    // {
+    //     std::cout << tt[i] << std::endl;
+    // }
+    // std::cout << tt.size() << " " << tt.capacity()<<std::endl;
+    // std::istringstream str("1234567890ABCDEFGHIJKLMNOPQRSTUVWXYZ");
+    //     std::istreambuf_iterator<char> it(str), end;
+    // std::vector<int> testy(it,end);
+    // std::cout << testy.capacity()  << " "<< testy.size() << std::endl;
+    // std::vector<int>::iterator it3 = tt.begin();
+    
+
+    // std::vector<string>::iterator it4 = tt.end();
+    // double arr[32];
+    // for(int i = 0; i < 32; i++)
+    // {
+    //     arr[i] = ((i*3 + 2)* 3.5 )*1500;
+    // } 
+    // ft::vector<double> a(arr, arr + 32);
+    // for(int i = 0; i < 32; i++)
+    // cout << a[i] << endl;
+        // ft::vector<int> b;
+        // // b.reserve(32);
+        // // ft::vector<int>::iterator it;
+        // b.push_back(1);
+        // ft::vector<int> d;
+        // d.push_back(1);
+        // if(b == d)
+        // std::cout << "yes\n";
+    // b.insert(b.begin(), 100000, 10);
+    // b.push_back(1);
+    // b.push_back(2);
+    // b.insert(b.end(), 3);
+    // for(unsigned int i = 0; i < b.size() ; i++)
+    // std::cout << b[i] << std::endl;
+    // it = a.begin();
+    // ft::vector<int>::iterator it1;
+    // it1 = it;
+    // cout << *it1;
+    // if(it1 == it)
+    // cout << "eq";
+    // // a.assign(1,2);
+    // a.assign(a.begin(),a.end());
+
+    
     // it = 1 + it;
     // it++;
     // b.assign((size_t)10,1);
