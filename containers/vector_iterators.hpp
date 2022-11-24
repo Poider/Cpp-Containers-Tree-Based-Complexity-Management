@@ -6,7 +6,7 @@
 /*   By: mel-amma <mel-amma@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/11/05 12:49:00 by mel-amma          #+#    #+#             */
-/*   Updated: 2022/11/16 13:45:46 by mel-amma         ###   ########.fr       */
+/*   Updated: 2022/11/24 14:57:27 by mel-amma         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -45,7 +45,7 @@ template <typename vec>
         template <typename it>
             friend class VectorIterator;
         template <typename rit>
-            friend class ReverseVectorIterator;
+            friend class reverse_iterator;
         // template <typename ss>
         //     friend class VectorIterator;
     public :
@@ -188,7 +188,7 @@ template <typename vec>
 
 
 template <typename iterator>
-    class ReverseVectorIterator
+    class reverse_iterator
 {
     public :
         typedef iterator                                                     iterator_type;
@@ -205,7 +205,7 @@ template <typename iterator>
         iterator_type it;
         template <class T1, class Allocator1>
            friend class vector;
-        ReverseVectorIterator(pointer ptr) 
+        reverse_iterator(pointer ptr) 
         {
             it = VectorIterator<pointer>(ptr);
         };
@@ -215,70 +215,70 @@ template <typename iterator>
         template <typename it>
             friend class VectorIterator;
         template <typename rit>
-            friend class ReverseVectorIterator;
+            friend class reverse_iterator;
     public :
         iterator_type base() const
         {
             return it;
         };
         //default constructible only from forward iterator and ahead
-        ReverseVectorIterator(){};
+        reverse_iterator(){};
 
         template <typename s>
-            ReverseVectorIterator(const ReverseVectorIterator<s> &other) {
+            reverse_iterator(const reverse_iterator<s> &other) {
             it = other.base();
         };
         
         template <typename s>
-            ReverseVectorIterator<iterator>& operator=(const ReverseVectorIterator<s> &other)
+            reverse_iterator<iterator>& operator=(const reverse_iterator<s> &other)
         {
             it =  other.base();
             return *this;
         };
 
-        ~ReverseVectorIterator(){};
+        ~reverse_iterator(){};
 
         //increments
-            ReverseVectorIterator<iterator>& operator++()//++x
+            reverse_iterator<iterator>& operator++()//++x
             {
                 it--;
                 return *this;
             };
-            ReverseVectorIterator<iterator> operator++(int)//x++
+            reverse_iterator<iterator> operator++(int)//x++
             {
-                ReverseVectorIterator<iterator> temp = *this;
+                reverse_iterator<iterator> temp = *this;
                 it--;
                 return temp;
             };
-            ReverseVectorIterator<iterator>& operator--()
+            reverse_iterator<iterator>& operator--()
             {
                 it++;
                 return *this;
             };
-            ReverseVectorIterator<iterator> operator--(int)
+            reverse_iterator<iterator> operator--(int)
             {
-                ReverseVectorIterator<iterator> temp = *this;
+                reverse_iterator<iterator> temp = *this;
                 it++;
                 return temp;
             };
 
            
-            ReverseVectorIterator<iterator> operator+(int a)const
+            reverse_iterator<iterator> operator+(int a)const
             {
-                ReverseVectorIterator<iterator>  temp;
+                reverse_iterator<iterator>  temp;
                 temp.it = it - a;
                 return temp;
             };
             template <class iter>
-            friend ReverseVectorIterator<iter> operator+(int a, const ReverseVectorIterator<iter>& vector);
-            ReverseVectorIterator<iterator> operator-(int a)const
+            friend reverse_iterator<iter> operator+(int a, const reverse_iterator<iter>& vector);
+            reverse_iterator<iterator> operator-(int a)const
             {
-                ReverseVectorIterator<iterator>  temp;
+                reverse_iterator<iterator>  temp;
                 temp.it = it + a;
                 return temp;
             };
 
-            difference_type operator-(ReverseVectorIterator<iterator> other)const
+            difference_type operator-(reverse_iterator<iterator> other)const
             {
                 difference_type a;
                 
@@ -287,12 +287,12 @@ template <typename iterator>
             };
 
            
-            ReverseVectorIterator& operator+=(int amount)
+            reverse_iterator& operator+=(int amount)
             {
                 it = it - amount;
                 return *this;
             };
-            ReverseVectorIterator& operator-=(int amount)
+            reverse_iterator& operator-=(int amount)
             {
                 it = it + amount;
                 return *this;
@@ -304,21 +304,25 @@ template <typename iterator>
             */
             const_pointer operator->() const
             {
-                return it.operator->();
+                iterator_type  temp = it;
+                --temp;
+                return temp.operator->();
             };
             const_reference operator*() const
             {
-                ReverseVectorIterator<iterator>  temp = it;
+                iterator_type  temp = it;
                 --temp;
                 return temp.operator*();
             };
             pointer operator->()
             {
-                return it.operator->();
+                iterator_type  temp = it;
+                --temp;
+                return temp.operator->();
             };
             reference operator*()
             {
-                ReverseVectorIterator<iterator>  temp = it;
+                iterator_type  temp = it;
                 --temp;
                 return temp.operator*();
             };
@@ -332,31 +336,31 @@ template <typename iterator>
             */
             reference operator[](int index)
             {
-                return *(it.base() - index);
+                return *(it - index - 1);
             };
             const_reference operator[](int index)const
             {
-                return *(it.base() - index);
+                return *(it - index - 1);
             };
 
         // multipass?
             template <typename iterator1, typename iterator2>
-            friend bool operator==(const ReverseVectorIterator<iterator1> &it1, const ReverseVectorIterator<iterator2> &it2);
+            friend bool operator==(const reverse_iterator<iterator1> &it1, const reverse_iterator<iterator2> &it2);
             
             template <typename iterator1, typename iterator2>
-            friend bool operator!=(const ReverseVectorIterator<iterator1> &it1, const ReverseVectorIterator<iterator2> &it2);
+            friend bool operator!=(const reverse_iterator<iterator1> &it1, const reverse_iterator<iterator2> &it2);
 
             template <typename iterator1, typename iterator2>
-            friend bool operator>(const ReverseVectorIterator<iterator1> &it1, const ReverseVectorIterator<iterator2> &it2);
+            friend bool operator>(const reverse_iterator<iterator1> &it1, const reverse_iterator<iterator2> &it2);
 
             template <typename iterator1, typename iterator2>
-            friend bool operator>=(const ReverseVectorIterator<iterator1> &it1, const ReverseVectorIterator<iterator2> &it2);
+            friend bool operator>=(const reverse_iterator<iterator1> &it1, const reverse_iterator<iterator2> &it2);
 
             template <typename iterator1, typename iterator2>
-            friend bool operator<(const ReverseVectorIterator<iterator1> &it1, const ReverseVectorIterator<iterator2> &it2);
+            friend bool operator<(const reverse_iterator<iterator1> &it1, const reverse_iterator<iterator2> &it2);
 
             template <typename iterator1, typename iterator2>
-            friend bool operator<=(const ReverseVectorIterator<iterator1> &it1, const ReverseVectorIterator<iterator2> &it2);
+            friend bool operator<=(const reverse_iterator<iterator1> &it1, const reverse_iterator<iterator2> &it2);
     };
 
 
@@ -372,9 +376,9 @@ VectorIterator<vec> operator+(int a, const VectorIterator<vec>& iter)
 
 
 template <class iterator>
-ReverseVectorIterator<iterator> operator+(int a, const ReverseVectorIterator<iterator>& iter)
+reverse_iterator<iterator> operator+(int a, const reverse_iterator<iterator>& iter)
 {
-    ReverseVectorIterator<iterator>  temp;
+    reverse_iterator<iterator>  temp;
     temp = iter.operator+(a);
     return (temp);
 };
@@ -382,15 +386,15 @@ ReverseVectorIterator<iterator> operator+(int a, const ReverseVectorIterator<ite
 //comparisons
 
 template<typename iterator1,typename iterator2>
-bool operator==(const ReverseVectorIterator<iterator1> &it1,const ReverseVectorIterator<iterator2> &it2)
+bool operator==(const reverse_iterator<iterator1> &it1,const reverse_iterator<iterator2> &it2)
 {
-    return (it1 == it2);
+    return (it1.it == it2.it);
 };
 
 template<typename iterator1,typename iterator2>
-bool operator!=(const ReverseVectorIterator<iterator1> &it1,const ReverseVectorIterator<iterator2> &it2)
+bool operator!=(const reverse_iterator<iterator1> &it1,const reverse_iterator<iterator2> &it2)
 {
-    return (it1 != it2);
+    return (it1.it != it2.it);
 };
 
 template<typename iterator1,typename iterator2>
@@ -418,27 +422,27 @@ bool operator<=(const VectorIterator<iterator1> &it1,const VectorIterator<iterat
 };
 
 template<typename iterator1,typename iterator2>
-bool operator>(const ReverseVectorIterator<iterator1> &it1,const ReverseVectorIterator<iterator2> &it2)
+bool operator>(const reverse_iterator<iterator1> &it1,const reverse_iterator<iterator2> &it2)
             {
-                return (it1 < it2);
+                return (it1.it < it2.it);
                    
             };
 template<typename iterator1,typename iterator2>         
-bool operator>=(const ReverseVectorIterator<iterator1> &it1,const ReverseVectorIterator<iterator2> &it2)
+bool operator>=(const reverse_iterator<iterator1> &it1,const reverse_iterator<iterator2> &it2)
 {
-    return (it1 <= it2);
+    return (it1.it <= it2.it);
 };
 
 template<typename iterator1,typename iterator2>
-bool operator<(const ReverseVectorIterator<iterator1> &it1,const ReverseVectorIterator<iterator2> &it2)
+bool operator<(const reverse_iterator<iterator1> &it1,const reverse_iterator<iterator2> &it2)
 {
-    return (it1 > it2);
+    return (it1.it > it2.it);
 };
 
 template<typename iterator1,typename iterator2>
-bool operator<=(const ReverseVectorIterator<iterator1> &it1,const ReverseVectorIterator<iterator2> &it2)
+bool operator<=(const reverse_iterator<iterator1> &it1,const reverse_iterator<iterator2> &it2)
 {
-    return (it1 >= it2);
+    return (it1.it >= it2.it);
 };
 
 template<typename iterator1,typename iterator2>

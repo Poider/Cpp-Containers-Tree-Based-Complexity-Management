@@ -44,7 +44,13 @@ int main()
                         // it3 = it4;
 
 
-    // ft::vector<string> tt;
+    ft::vector<int> tt;
+    tt.push_back(1);
+    tt.push_back(1);
+    tt.push_back(1);
+    tt.push_back(1);
+    tt.push_back(1);
+    tt.resize(3);
     // std::string str[32];
     // std::string str1[64];
     // for(int i = 0; i < 32; i++)
@@ -58,10 +64,12 @@ int main()
 
 
     // tt.insert(tt.begin(), str, str + 32);
-    // for (size_t i = 0; i < tt.size(); i++)
-    // {
-    //     std::cout << tt[i] << std::endl;
-    // }
+    cout << tt.size() << endl;
+    cout << tt.capacity() << endl << endl;
+    for (size_t i = 0; i < tt.size(); i++)
+    {
+        std::cout << tt[i] << std::endl;
+    }
     
     // tt.push_back(1);
     // tt.push_back(1);

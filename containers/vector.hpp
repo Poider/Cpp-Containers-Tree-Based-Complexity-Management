@@ -6,7 +6,7 @@
 /*   By: mel-amma <mel-amma@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/11/05 12:49:07 by mel-amma          #+#    #+#             */
-/*   Updated: 2022/11/23 15:17:05 by mel-amma         ###   ########.fr       */
+/*   Updated: 2022/11/24 16:15:16 by mel-amma         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,6 +14,7 @@
 #define _my_vector
 #include <memory>
 #include <algorithm>
+#include <cmath>
 #include <iterator>
 #include "iterator_traits.hpp"
 #include "vector_iterators.hpp"
@@ -39,14 +40,14 @@ public:
     typedef typename allocator_type::const_pointer   const_pointer;//Allocator::const_pointer 
     typedef VectorIterator<pointer>                 iterator;//LegacyRandomAccessIterator and LegacyContiguousIterator to value_type 
     typedef VectorIterator<const_pointer>                    const_iterator; //LegacyRandomAccessIterator and LegacyContiguousIterator to const value_type 
-    typedef  ReverseVectorIterator<iterator>         reverse_iterator;//std::reverse_iterator<iterator>
-    typedef  ReverseVectorIterator<const_iterator>   const_reverse_iterator;//	std::reverse_iterator<const_iterator>
+    typedef  ft::reverse_iterator<iterator>         reverse_iterator;//std::reverse_iterator<iterator>
+    typedef  ft::reverse_iterator<const_iterator>   const_reverse_iterator;//	std::reverse_iterator<const_iterator>
 
 
     // >>>>> member funcs 
     vector()
     {
-        // container = nullptr;
+        container = nullptr;
         _size = 0;
         _capacity = 0;
     };
@@ -54,7 +55,7 @@ public:
     explicit vector(const Allocator &alloc)
     {
         this->alloc = alloc;
-        // container = nullptr;
+        container = nullptr;
         _size = 0;
         _capacity = 0;
     };
@@ -67,6 +68,8 @@ public:
                         this->alloc = alloc;
                         _size = 0;
                         _capacity = 0;
+                        container = nullptr;
+
                         if(count <= 0)
                         return;
                         if(count < max_size())
@@ -86,6 +89,7 @@ public:
            {
                 // size_type s = (size_type)std::distance(first,last);
                 this->alloc= alloc;
+                container = nullptr;
                 _size = 0;
                 _capacity = 0;
                 while(first != last)
@@ -113,6 +117,7 @@ public:
     {
         _size = other._size;
         _capacity = other._capacity;
+        container = nullptr;
         if(_capacity)
         {
             container = alloc.allocate(_capacity);
@@ -135,18 +140,26 @@ public:
 
     vector& operator=( const vector& other )
     {
+        
         if(_capacity)
         {
             for(size_type i = 0; i < _size; i++)
+            {
+                
                 alloc.destroy(container + i);
+            }
             alloc.deallocate(container, _capacity);
         }
         _size = other._size;
         _capacity = other._capacity;
-        container = alloc.allocate(_capacity);
-        for(size_type i = 0; i < _capacity; i++)
+        alloc = other.alloc;
+        
+        if(_capacity)
+            this->container = alloc.allocate(_capacity);
+        // std::cout << _capacity << " " << _size << std::endl;
+        for(size_type i = 0; i < _size; i++)
         {
-            container[i] = other.container[i];
+            alloc.construct(container + i,other.container[i]);
         }
         return *this;
     };
@@ -156,21 +169,43 @@ public:
         
         if(count < 0)
             throw std::length_error("vector");
-
+       
         for(size_type i = 0; i < _size; i++)
             alloc.destroy(container + i);
         _size = 0;
-
         if(count > _capacity)
         {
-            alloc.deallocate(container, _capacity);
-            container = alloc.allocate(count);
+            double_up(count);
             _capacity = count;
         }
         _size = count;
         for(size_type i = 0; i < _size; i++)
             alloc.construct(&container[i],value);
+        // std::cout << _size << " " << _capacity << std::endl;
     };
+
+
+ 
+    
+    template <class InputIt >
+    void assign(InputIt first, InputIt last, typename ft::enable_if<std::__is_input_iterator<InputIt>::value &&
+                                 !std::__is_forward_iterator<InputIt>::value ,
+                                 InputIt>::type* = nullptr)
+    {    
+        for(size_type i = 0; i < _size; i++)
+            alloc.destroy(container + i);
+        _size = 0;
+        for(size_type i = 0; first != last; i++)
+        {
+            if(_size + 1 > _capacity)
+                double_up(_capacity + 1);
+            alloc.construct(&container[i],*first);
+            _size++;
+            first++;
+        }
+    }
+
+
 
     template <class InputIt >
     void assign(InputIt first,typename std::enable_if<!std::is_integral< InputIt >::value,InputIt >::type last)
@@ -178,20 +213,17 @@ public:
         size_type count = std::distance(first,last);
         if(count < 0)
             throw std::length_error("vector");
-
+       
         for(size_type i = 0; i < _size; i++)
             alloc.destroy(container + i);
         _size = 0;
-        
         if(count > _capacity)
         {
-            alloc.deallocate(container, _capacity);
-            container = alloc.allocate(count);
+            double_up(count);
             _capacity = count;
         }
-        
         _size = count;
-        for(size_type i = 0; i < _size; i++)
+        for(size_type i = 0; i < count; i++)
         {
             alloc.construct(&container[i],*first);
             first++;
@@ -312,7 +344,10 @@ public:
 
     size_type max_size() const
     {
-        return (alloc.max_size());
+        size_type s = alloc.max_size();
+        if(s > PTRDIFF_MAX)
+            s = PTRDIFF_MAX; 
+        return (s);
     };
 
     void reserve( size_type new_cap )
@@ -349,10 +384,10 @@ public:
             alloc.destroy(container + i);
         }
         if(_capacity)
-        alloc.deallocate(container, _capacity);
+            alloc.deallocate(container, _capacity);
         _size = 0;
         if(_capacity)
-        alloc.allocate(_capacity);
+            container = alloc.allocate(_capacity);
     };
 
     iterator insert(const_iterator pos, const T &value)
@@ -538,8 +573,9 @@ public:
 
     void resize( size_type count, T value = T() )
     {
-        //if count < 0
-        
+        if(count < 0 || count >= max_size())
+            throw std::length_error("Bad reserve size");
+            
         if(count <= _size)
         {
             for(size_type i = count; i < _size; i++)
@@ -552,12 +588,14 @@ public:
         {
             while(count > _capacity)
                 double_up(_capacity * 2);
-            for(size_type i = _size; i < _size + count; i++)
+            for(size_type i = 0; i < count - _size; i++)
             {
-                alloc.construct(&container[i], value);
+                alloc.construct(&container[_size + i], value);
             }
-            _size += count;
+            
+            _size = count;
         }
+        
     };
     void swap( vector& other )
     {
