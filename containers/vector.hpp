@@ -6,7 +6,7 @@
 /*   By: mel-amma <mel-amma@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/11/05 12:49:07 by mel-amma          #+#    #+#             */
-/*   Updated: 2022/11/24 16:15:16 by mel-amma         ###   ########.fr       */
+/*   Updated: 2022/11/27 16:53:44 by mel-amma         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -118,6 +118,7 @@ public:
         _size = other._size;
         _capacity = other._capacity;
         container = nullptr;
+        alloc = other.alloc;
         if(_capacity)
         {
             container = alloc.allocate(_capacity);

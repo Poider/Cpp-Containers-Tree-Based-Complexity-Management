@@ -6,7 +6,7 @@
 /*   By: mel-amma <mel-amma@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/11/05 12:49:00 by mel-amma          #+#    #+#             */
-/*   Updated: 2022/11/24 14:57:27 by mel-amma         ###   ########.fr       */
+/*   Updated: 2022/11/26 13:59:40 by mel-amma         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -207,7 +207,7 @@ template <typename iterator>
            friend class vector;
         reverse_iterator(pointer ptr) 
         {
-            it = VectorIterator<pointer>(ptr);
+            it = iterator_type(ptr);
         };
 
 

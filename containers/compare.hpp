@@ -2,7 +2,7 @@
 #define _lexicographical_compare
 #include "enable_if.hpp"
 #include "is_integral.hpp"
-
+#include <utility>
 namespace ft{
 
 template< class InputIt1, class InputIt2 >

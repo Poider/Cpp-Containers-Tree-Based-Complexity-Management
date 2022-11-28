@@ -5,18 +5,21 @@
 #include <sys/stat.h>
 #include <unistd.h>
 #include <map>
+#include "pair.hpp"
+#include <functional>
+#include "avl_tree.hpp"
 
-namespace std {
-  template<class Key, class T, class Compare = less<Key>,
-           class Allocator = std::allocator<pair<const Key, T>>>
+namespace ft {
+  
+  template<class Key, class T, class Compare = std::less<Key>,
+           class Allocator = std::allocator< pair <const Key, T> > >
   class map {
-  public:
     // types
     public:
     // types:
     typedef Key                                      key_type;//
     typedef T                                        mapped_type;//
-    typedef pair<const key_type, mapped_type>        value_type;//
+    typedef ft::pair<const key_type, mapped_type>        value_type;//
     typedef Compare                                  key_compare;//
     typedef Allocator                                allocator_type;//
     typedef typename allocator_type::reference       reference;//value_type&
@@ -30,30 +33,59 @@ namespace std {
     typedef implementation-defined                   const_iterator;//LegacyBidirectionalIterator to const value_type
     typedef std::reverse_iterator<iterator>          reverse_iterator;//	std::reverse_iterator<iterator>
     typedef std::reverse_iterator<const_iterator>    const_reverse_iterator;//std::reverse_iterator<const_iterator>
-     class value_compare
-        : public binary_function<value_type, value_type, bool>
+    
+    class value_compare: public binary_function<value_type, value_type, bool>
     {
-      friend class map;
-    protected:
-      Compare comp;
-      value_compare(Compare c) : comp(c) {}
-    public:
-      bool operator()(const value_type& x, const value_type& y) const {
-        return comp(x.first, y.first);
-      }
+        friend class map;
+
+        protected:
+            Compare comp;
+
+            value_compare(Compare c) : comp(c)/
+            {};
+
+        public:
+        bool operator()(const value_type& x, const value_type& y) const 
+        {
+            return comp(x.first, y.first);
+        }
     };
 
+    private:
+    avl<value_type, key_compare, value_compare, allocator_type> root;
+    size_type _size;
+    key_compare _comp;
+    allocator_type alloc;
 //>>>>> member funcs
-    map();
+    map()
+    {
+        root = NULL;
+        _size = 0;
+    };
 
     explicit map(const Compare &comp,
-                 const Allocator &alloc = Allocator());
+                 const Allocator &alloc = Allocator())
+                 {
+                     root = NULL;
+                     _size = 0;
+                     _comp = comp;
+                     this->alloc = alloc;
+                 };
 
     template <class InputIt>
         map(InputIt first, InputIt last,
                 const Compare &comp = Compare(),
-                const Allocator &alloc = Allocator());
-    map(const map &other);
+                const Allocator &alloc = Allocator())
+                {
+                    //insert node by node
+                };
+    map(const map &other)
+    {
+        _size;
+        _comp;
+        alloc;
+        //root; copy the others deep copy
+    };
 
     ~map();
     map& operator=( const map& other );
@@ -107,7 +139,7 @@ namespace std {
 
 //>>>>> observers
     key_compare key_comp() const;
-    std::map::value_compare value_comp() const;
+    ft::map::value_compare value_comp() const;
 
 
 template< class Key, class T, class Compare, class Alloc >
