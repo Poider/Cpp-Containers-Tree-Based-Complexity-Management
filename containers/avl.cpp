@@ -6,7 +6,7 @@ using namespace ft;
 int main()
 {
     {
-        avl< pair<int,std::string> ,int,int > root;
+        avl< pair<int,std::string> ,int,int > *root = new avl< ft::pair<int,std::string> ,int,int >();
         // root.put_data(make_pair(0,"root"));
         // root.put_left(make_pair(1,"lol"));
         // root.put_right(make_pair(2,"lel"));
@@ -16,13 +16,13 @@ int main()
         // node = root;
         // std::cout << node.left << std::endl;
 
-        root.insert(make_pair(1,"root"));
-        root.insert(make_pair(2,"root"));
-        root.insert(make_pair(3,"root"));
-        // root.insert(make_pair(4,"root"));
-        // root.insert(make_pair(5,"root"));
+        root = root->insert(make_pair(1,"root"));
+        root = root->insert(make_pair(2,"root"));
+        root = root->insert(make_pair(3,"root"));
+        root = root->insert(make_pair(4,"root"));
+        root = root->insert(make_pair(5,"root"));
 
-        std::cout << root.right << std::endl;
+        std::cout << root->height << std::endl;
 
     }
     // system("leaks a.out");

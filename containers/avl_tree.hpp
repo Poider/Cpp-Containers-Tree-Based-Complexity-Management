@@ -113,12 +113,13 @@ struct avl{
     
 //use balance on each level as it goes up (checks diff between height of right and of left)
 //while tryna insert ++ height of each node passed by?
-    void insert_node(T data)//use key compare or value compare here
+    avl *insert_node(T data)//use key compare or value compare here
     {
+        avl* root = 0;
+        avl* temp = 0;
         if(!this->data)// if no data
         {
             put_data(data);
-            return ;
         }
         else if(*(this->data) > data)//rest if no nodes it inserts
         {
@@ -127,19 +128,19 @@ struct avl{
                 put_left(data);
                 if(height <= 1)
                     height++;
-                balance(data);
-                return ;
+                root = balance(data);
             }
             else
             {
-                left->insert_node(data);
+                root = left->insert_node(data);
                 size_t l_height = left->height;
                 size_t r_height = 0;
                 if(right)
                     r_height = right->height;
                 height = std::max(l_height, r_height) + 1;
-                balance(data);
-                return ;
+                temp = balance(data);
+                if(temp)
+                    root = temp;
             }
         }
         else if(*(this->data) < data)
@@ -149,19 +150,19 @@ struct avl{
                 put_right(data);
                 if(height <= 1)
                     height++;
-                balance(data);
-                return ;
+                root = balance(data);
             }
             else
             {
-                right->insert_node(data);
+                root = right->insert_node(data);
                 size_t r_height = right->height;
                 size_t l_height = 0;
                 if(left)
                     l_height = left->height;
                 height = std::max(l_height, r_height) + 1;
-                balance(data);
-                return ;
+                temp = balance(data);
+                if(temp)
+                    root = temp;
             }
         }
         else
@@ -169,17 +170,23 @@ struct avl{
             //if same key? change old data
             alloc.destroy(this->data);
             alloc.construct(this->data, data);
-                return ;
         }
+        return root;
     };
 
-    void insert(T data)
+    avl* insert(T data)//must be used in the root
     {
-        insert_node(data);
+        // make it so if(parent doesnt exists then it does otherwise it wont)
+        avl* root = insert_node(data);
+        if(root)
+            return root;
+        else
+            return this;
     }
 
-    void balance(T data)//segfault cus I touch a parent that shouldnt be touched?
+    avl* balance(T data)//segfault cus I touch a parent that shouldnt be touched?
     {
+        avl* root = 0;
         int l_height = 0;
         int r_height = 0;
         
@@ -193,7 +200,7 @@ struct avl{
         int diff = l_height - r_height;
 
         if(abs(diff) < 2)
-            return ;
+            return 0;
         
         //where theres unbalance you send 3 nodes to the appropriate rotate
 
@@ -204,13 +211,13 @@ struct avl{
             {
 
                 std::cout << "RL" << std::endl;
-                right_rotate(this->right);
-                left_rotate(this);
+                root = right_rotate(this->right);
+                root = left_rotate(this);
             }
             else
             {
                 std::cout << "RR" << std::endl;
-                left_rotate(this);
+                root = left_rotate(this);
 
             }
         }
@@ -220,15 +227,16 @@ struct avl{
             if(data < *(left->data))
             {
                 std::cout << "LL" << std::endl;
-                right_rotate(this);
+                root = right_rotate(this);
             }
             else
             {
                 std::cout << "LR" << std::endl;
-                left_rotate(this->left);
-                right_rotate(this);
+                root = left_rotate(this->left);
+                root = right_rotate(this);
             }
         }
+        return root;
     }
 
  
@@ -244,7 +252,7 @@ struct avl{
        T3   T4*/
 //the parent is where theres unbalance      
 //return the head to put in their parent left or right
-    void left_rotate(avl *z)
+    avl* left_rotate(avl *z)
     {
         avl *root_parent = z->parent;
 
@@ -287,6 +295,10 @@ struct avl{
                 r_height = x->right->height;
         }
         x->height = std::max(l_height, r_height) + 1;
+         //if its the root now it returns it otherwise nothing
+        if(x->parent)
+            return 0;
+        return x;
     };
 
 /*
@@ -298,7 +310,7 @@ struct avl{
  / \
 T1   T3*/
 
-    void right_rotate(avl *z)
+    avl* right_rotate(avl *z)
     {
         avl *root_parent = z->parent;
 
@@ -343,6 +355,10 @@ T1   T3*/
                 r_height = x->right->height;
         }
         x->height = std::max(l_height, r_height) + 1;
+        //if its the root now it returns it otherwise nothing
+        if(x->parent)
+            return 0;
+        return x;
     };
 
     avl* _left()
