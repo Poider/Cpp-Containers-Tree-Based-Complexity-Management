@@ -16,12 +16,13 @@ int main()
         // node = root;
         // std::cout << node.left << std::endl;
 
-        root.insert(make_pair(0,"root"));
         root.insert(make_pair(1,"root"));
-        root.insert(make_pair(4,"root"));
         root.insert(make_pair(2,"root"));
+        root.insert(make_pair(3,"root"));
+        // root.insert(make_pair(4,"root"));
+        // root.insert(make_pair(5,"root"));
 
-        std::cout << root.right->height << std::endl;
+        std::cout << root.right << std::endl;
 
     }
     // system("leaks a.out");
