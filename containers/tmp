@@ -390,36 +390,11 @@ T1   T3*/
 //deletion
 //maybe will also return root like insert
 
-
-void fix_height_till(avl *dis)
-{
-    avl *current = this;
-    bool flag = false;
-    
-    while(!flag && current)
-    {
-        size_t l_height = 0;
-        size_t r_height = 0;
-
-        if(current == dis)
-            flag = true;
-        if(current->left)
-            l_height = current->left->height;
-        if(current->right)
-            r_height = current->right->height;
-        current->height = std::max(l_height, r_height) + 1;
-        current = current->parent;
-        
-    }
-}
-
-
-
 //find node that you try deleting then update height with the recursivity after deletion and then also balance
-avl* delete_node()
+void delete_node()
 // update height after deleting that node // starting from parent of the deleted node
 {
-    avl *ret_node;
+    avl *parent;
     if(left && right)
     {
         //two children
@@ -438,14 +413,12 @@ avl* delete_node()
             avl* max = left;
             while(max->right)
                 max = right;
-            min_max = max;
+                min_max = max;
         }
-        ret_node = min_max->parent; // from where balance
         alloc.destroy(this->data);
         alloc.construct(this->data, *(min_max->data));
         // then delete that node //send it to this delete_node
-        min_max = min_max->delete_node();
-        min_max->fix_height_till(this);
+        min_max->delete_node();
     }
 
     else if(!left && !right)
@@ -453,8 +426,8 @@ avl* delete_node()
         //no children
         if(parent)
             (parent->left == this)? parent->left = 0 : parent->right = 0;
-        ret_node = parent;
         delete this;
+        return ;
        
     }
 
@@ -462,16 +435,14 @@ avl* delete_node()
     {
         // one child
         avl *child = (left != 0)? left : right;
-        child->parent = parent;
         if(parent)
             (parent->left == this)? parent->left = child : parent->right = child;
-        ret_node = child;
         //now delete this and its data
         delete this;
+        return ;
     }
 
-    return ret_node;
-    //shall return from where the balance should start, if no parent then returns 0 (tree empty)
+    //shall return the root at some point
     
 };
 
@@ -505,69 +476,28 @@ avl* delete_node()
 
 avl* find_delete(first_type key) //use on the root ofc
 {
-    if(data->first == key)
-    {
-        //(if 0 is returned then the parent is null)
-        //if no parent means the tree is empty now?
-        avl* node = delete_node();
-        //if it sends back 0 in recursivity then tree empty do nothin
-        return node;//here keep going up the recursivity and if theres a node where no parent, you save that and send that back
-    
-    }
-
-    //if it sends back 0 in recursivity then tree empty do nothin
-    //or this that it didnt find the key
-    else if(key < data->first)
+    if(node->data->first == key)
+        delete_node(this);
+    else if(key < node->data->first)
     {
         if(left)
-        {
-            avl* node = left->find_node_key(key);
-
-            //fix height
-            size_t l_height = 0;
-            size_t r_height = 0;
-            if(left)
-                l_height = left->height;
-            if(right)
-                r_height = right->height;
-            height = std::max(l_height, r_height) + 1;
-            return(node);
-        }
+            return(left->find_node_key(key));
         else
-            return this;
+            return NULL;
     }
-    else
+    else 
     {
         if(right)
-        {
-            avl* node = right->find_node_key(key);
-
-            //fix height
-            size_t l_height = 0;
-            size_t r_height = 0;
-            if(left)
-                l_height = left->height;
-            if(right)
-                r_height = right->height;
-            height = std::max(l_height, r_height) + 1;
-            return(node);
-        }
+            return(right->find_node_key(key));
         else
-            return this;
+            return NULL;
     }
 }
 
 void delete_(first_type key)// you send the key apparently
 {
-    avl *root = find_delete(key);
-    if(root == 0)
-        //tree is empty, return a new root
-    else
-        //return this so it stays the root
-
-
-    //if null then no deletion happened
-    //get root in case it changed from that func
+    avl *node = find_node_key(key);
+    delete_node(node);//should return where to start balancing from + if its the root or not
     
 }
 

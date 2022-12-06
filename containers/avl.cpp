@@ -16,13 +16,14 @@ int main()
         // node = root;
         // std::cout << node.left << std::endl;
 
-        root = root->insert(make_pair(1,"root"));
-        root = root->insert(make_pair(2,"root"));
-        root = root->insert(make_pair(3,"root"));
-        root = root->insert(make_pair(4,"root"));
-        root = root->insert(make_pair(5,"root"));
+        root = root->insert(make_pair(9,"root"));
+        root = root->insert(make_pair(7,"root"));
+        root = root->insert(make_pair(15,"rooty"));
+        root = root->insert(make_pair(13,"root"));
+        root = root->insert(make_pair(20,"root"));
+        root = root->insert(make_pair(10,"root"));
 
-        std::cout << root->height << std::endl;
+        // std::cout << root->find_node_key(20) << std::endl;
 
     }
     // system("leaks a.out");
