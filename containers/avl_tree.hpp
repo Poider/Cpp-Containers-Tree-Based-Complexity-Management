@@ -1,6 +1,8 @@
 #ifndef _AVL
 #define _AVL
 #include <memory>
+#define DELETION 0
+#define INSERTION 1
 //change < to key_compare / value_compare
 
 
@@ -133,7 +135,7 @@ struct avl{
                 put_left(data);
                 if(height <= 1)
                     height++;
-                root = balance(data);
+                root = balance(data, INSERTION);
             }
             else
             {
@@ -143,7 +145,7 @@ struct avl{
                 if(right)
                     r_height = right->height;
                 height = std::max(l_height, r_height) + 1;
-                temp = balance(data);
+                temp = balance(data, INSERTION);
                 if(temp)
                     root = temp;
             }
@@ -155,7 +157,7 @@ struct avl{
                 put_right(data);
                 if(height <= 1)
                     height++;
-                root = balance(data);
+                root = balance(data, INSERTION);
             }
             else
             {
@@ -165,7 +167,7 @@ struct avl{
                 if(left)
                     l_height = left->height;
                 height = std::max(l_height, r_height) + 1;
-                temp = balance(data);
+                temp = balance(data, INSERTION);
                 if(temp)
                     root = temp;
             }
@@ -189,7 +191,7 @@ struct avl{
             return this;
     }
 
-    avl* balance(T data)//segfault cus I touch a parent that shouldnt be touched?
+    avl* balance(T data, bool type)
     {
         avl* root = 0;
         int l_height = 0;
@@ -208,10 +210,26 @@ struct avl{
             return 0;
         
         //where theres unbalance you send 3 nodes to the appropriate rotate
-
+        
         if(diff < 0)
         {
+            
             //right subtree is imbalanced
+            if(type == DELETION)
+            {
+                int l_height2 = 0;
+                int r_height2 = 0;
+
+                if(right->left)
+                    l_height2 = right->left->height;
+                if(right->right)
+                    r_height2 = right->right->height;
+                int diff2 = l_height - r_height;
+                data  = (diff2 < 0)? *(right->right->data) : *(right->left->data);
+            }
+
+
+
             if(data < *(right->data))
             {
 
@@ -229,6 +247,19 @@ struct avl{
         else
         {
             //left subtree is imbalanced
+            if(type == DELETION)
+            {
+                int l_height2 = 0;
+                int r_height2 = 0;
+
+                if(left->left)
+                    l_height2 = left->left->height;
+                if(left->right)
+                    r_height2 = left->right->height;
+                int diff2 = l_height - r_height;
+                data  = (diff2 < 0)? *(left->right->data) : *(left->left->data);
+            }
+
             if(data < *(left->data))
             {
                 std::cout << "LL" << std::endl;
@@ -430,16 +461,17 @@ avl* delete_node()
             //get min right put it in its place
             avl* min = right;
             while(min->left)
-                min = left;
+                min = min->left;
             min_max = min;
         }
         else{
             //get max left put it in its place
             avl* max = left;
             while(max->right)
-                max = right;
+                max = max->right;
             min_max = max;
         }
+        
         ret_node = min_max->parent; // from where balance
         alloc.destroy(this->data);
         alloc.construct(this->data, *(min_max->data));
@@ -475,31 +507,30 @@ avl* delete_node()
     
 };
 
-// avl* find_node_key(first_type key) //use on the root ofc
-// {
-//     avl *node = this;
-//     while(1)
-//     {
-//         if(node->data->first == key)
-//             break;
-//         if(key < node->data->first)
-//         {
-//             if(node->left)
-//                 node = node->left;
-//             else
-//                 return NULL;
-//         }
-//         else 
-//         {
-//             if(node->right)
-//                 node = node->right;
-//             else
-//                 return NULL;
-//         }
-//     }
-//     return node;
-// }
-
+avl* find_node_key(first_type key) //use on the root ofc
+{
+    avl *node = this;
+    while(1)
+    {
+        if(node->data->first == key)
+            break;
+        if(key < node->data->first)
+        {
+            if(node->left)
+                node = node->left;
+            else
+                return NULL;
+        }
+        else 
+        {
+            if(node->right)
+                node = node->right;
+            else
+                return NULL;
+        }
+    }
+    return node;
+}
 
 
 
@@ -510,6 +541,8 @@ avl* find_delete(first_type key) //use on the root ofc
         //(if 0 is returned then the parent is null)
         //if no parent means the tree is empty now?
         avl* node = delete_node();
+        T d;
+        node->balance(d,DELETION);
         //if it sends back 0 in recursivity then tree empty do nothin
         return node;//here keep going up the recursivity and if theres a node where no parent, you save that and send that back
     
@@ -521,7 +554,7 @@ avl* find_delete(first_type key) //use on the root ofc
     {
         if(left)
         {
-            avl* node = left->find_node_key(key);
+            avl* node = left->find_delete(key);
 
             //fix height
             size_t l_height = 0;
@@ -531,6 +564,8 @@ avl* find_delete(first_type key) //use on the root ofc
             if(right)
                 r_height = right->height;
             height = std::max(l_height, r_height) + 1;
+            T d;
+            balance(d,DELETION);
             return(node);
         }
         else
@@ -540,7 +575,7 @@ avl* find_delete(first_type key) //use on the root ofc
     {
         if(right)
         {
-            avl* node = right->find_node_key(key);
+            avl* node = right->find_delete(key);
 
             //fix height
             size_t l_height = 0;
@@ -550,6 +585,8 @@ avl* find_delete(first_type key) //use on the root ofc
             if(right)
                 r_height = right->height;
             height = std::max(l_height, r_height) + 1;
+            T d;
+            balance(d,DELETION);
             return(node);
         }
         else
@@ -557,14 +594,26 @@ avl* find_delete(first_type key) //use on the root ofc
     }
 }
 
-void delete_(first_type key)// you send the key apparently
+avl* delete_(first_type key)// you send the key apparently
 {
     avl *root = find_delete(key);
     if(root == 0)
-        //tree is empty, return a new root
+        //tree is empty, return a new root null
+        return NULL;
     else
-        //return this so it stays the root
+    {//fix this terqa3 and make it return the exact root?
+        while(root->parent)
+        {
+            std::cout << "sup" << std::endl;
+            root = root->parent;
+        }
+        return root;
+    }
+    //return the root sent back, in case root is deleted or smth,
+    //also put in a static var that'll rememeber the root through recursive
 
+        //return this so it stays the root
+    //what if you balance and a new root is there with a rotation, how to spot it?
 
     //if null then no deletion happened
     //get root in case it changed from that func
