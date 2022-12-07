@@ -542,6 +542,7 @@ avl* find_delete(first_type key) //use on the root ofc
         //if no parent means the tree is empty now?
         avl* node = delete_node();
         T d;
+        if(node)
         node->balance(d,DELETION);
         //if it sends back 0 in recursivity then tree empty do nothin
         return node;//here keep going up the recursivity and if theres a node where no parent, you save that and send that back
@@ -566,6 +567,8 @@ avl* find_delete(first_type key) //use on the root ofc
             height = std::max(l_height, r_height) + 1;
             T d;
             balance(d,DELETION);
+            if(!parent)
+                node = this;
             return(node);
         }
         else
@@ -587,6 +590,8 @@ avl* find_delete(first_type key) //use on the root ofc
             height = std::max(l_height, r_height) + 1;
             T d;
             balance(d,DELETION);
+            if(!parent)//this wont segfault cus if it went through this then its not the one thats deleted
+                node = this;
             return(node);
         }
         else

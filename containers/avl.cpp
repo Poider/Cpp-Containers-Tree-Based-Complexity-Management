@@ -119,10 +119,10 @@ int main()
         root = root->insert(make_pair(9,"rooty"));
         root = root->insert(make_pair(19,"rooty"));
 
-        root = root->delete_(20);
-        // root = root->delete_(17);
+        root = root->delete_(14);
+        root = root->delete_(155);
         printTree(root);
-        // std::cout << root->left<< std::endl;
+        // std::cout << root->find_node_key(13)->parent<< std::endl;
         // print(root);
     }
     // system("leaks a.out");
