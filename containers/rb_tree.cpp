@@ -1,5 +1,5 @@
 #include <iostream>
-#include "avl_tree.hpp"
+#include "red_black.hpp"
 #include "pair.hpp"
 
 using namespace ft;
@@ -11,9 +11,10 @@ using namespace ft;
 #include <iostream>
 #include <string>
 
-
+#define BLACK 0
+#define RED 1
 template<class T>
-void print_tree_X(const avl<T,int,int>* root, int indent=0) {
+void print_tree_X(const ft::rbTree<T,int,int>* root, int indent=0) {
   if (!root) return;
 
   std::cout << std::string(indent, ' ') << root->data->first << std::endl;
@@ -29,20 +30,20 @@ void print_tree_X(const avl<T,int,int>* root, int indent=0) {
 
 
 template<class T>
-void printTree(avl<T,int,int>* root) {
+void printTree(ft::rbTree<T,int,int>* root) {
     if (root == NULL) {
         return;
     }
 
-    std::queue<avl<T,int,int>*> q;
+    std::queue<ft::rbTree<T,int,int>*> q;
     q.push(root);
 
     while (!q.empty()) {
         int size = q.size();
-        std::vector<avl<T,int,int> *> level;
+        std::vector<ft::rbTree<T,int,int> *> level;
 
         for (int i = 0; i < size; i++) {
-            avl<T,int,int>* node = q.front();
+            ft::rbTree<T,int,int>* node = q.front();
             q.pop();
             level.push_back(node);
 
@@ -56,7 +57,8 @@ void printTree(avl<T,int,int>* root) {
         }
 
         for (int i = 0; i < level.size(); i++) {
-            std::cout << level[i]->data->first <<"("   <<level[i]->height<<")";
+            std::string s = (level[i]->color == BLACK)?"B":"R";
+            std::cout << level[i]->data->first <<"("   << s<< ")";
             if (i < level.size() - 1) {
                 std::cout << " /";
             }
@@ -78,7 +80,7 @@ void printTree(avl<T,int,int>* root) {
 
 
 // template<class T>
-// void print(avl<T,int,int>* node) {
+// void print(rbTree<T,int,int>* node) {
 //   if (node == nullptr) return;
 
 //   // Print the left subtree
@@ -94,15 +96,20 @@ void printTree(avl<T,int,int>* root) {
 int main()
 {
     {
-        avl< pair<int,std::string> ,int,int > *root = new avl< ft::pair<int,std::string> ,int,int >();
+        ft::rbTree< pair<int,std::string> ,int,int > *root = new ft::rbTree< pair<int,std::string> ,int,int >();
         // root.put_data(make_pair(0,"root"));
         // root.put_left(make_pair(1,"lol"));
         // root.put_right(make_pair(2,"lel"));
 
         // std::cout << root.right << std::endl;
-        // avl< pair<int,std::string> ,int,int > node;
+        // rbTree< pair<int,std::string> ,int,int > node;
         // node = root;
         // std::cout << node.left << std::endl;
+
+
+        // if(make_pair(15,"rooty") < make_pair(18,"rooty"))
+        //     std::cout << "yes\n";
+
 
         root = root->insert(make_pair(10,"rooty"));
         root = root->insert(make_pair(18,"rooty"));
@@ -116,20 +123,11 @@ int main()
         root = root->insert(make_pair(2,"rooty"));
         root = root->insert(make_pair(1,"rooty"));
         root = root->insert(make_pair(70,"rooty"));
-        // root = root->insert(make_pair(11,"rooty"));
-        // root = root->insert(make_pair(17,"rooty"));
-        // root = root->insert(make_pair(22,"rooty"));
-        // root = root->insert(make_pair(25,"rooty"));
-        // root = root->insert(make_pair(10,"rooty"));
-        // root = root->insert(make_pair(13,"rooty"));
-        // root = root->insert(make_pair(16,"rooty"));
-        // root = root->insert(make_pair(18,"rooty"));
-        // root = root->insert(make_pair(26,"rooty"));
         // root = root->insert(make_pair(9,"rooty"));
         // root = root->insert(make_pair(19,"rooty"));
 
-        // root = root->delete_(14);
-        // root = root->delete_(155);
+        // root = root->find_node_key(14);
+        
         printTree(root);
         // std::cout << root->find_node_key(13)->parent<< std::endl;
         // print(root);

@@ -167,7 +167,7 @@ struct avl{
                 if(left)
                     l_height = left->height;
                 height = std::max(l_height, r_height) + 1;
-                temp = balance(data, INSERTION);
+                temp = balance(data, INSERTION); 
                 if(temp)
                     root = temp;
             }
