@@ -8,6 +8,8 @@
 #define BLACK 0
 #define RED 1
 
+//also keep in mind we return the root if we spot new root, otherwise we return 0 in insert and rotate balance and all
+
 //keep in mind if tree is empty, create a new node, else insert (in map)
 
 //change < to key_compare / value_compare
@@ -476,105 +478,176 @@ T1   T3*/
     };
 
 
+
+    //deletion
+
+    void fix_height_till(rbTree *dis)
+    {
+        rbTree *current = this;
+        bool flag = false;
+
+        while (!flag && current)
+        {
+            size_t l_height = 0;
+            size_t r_height = 0;
+
+            if (current == dis)
+                flag = true;
+            if (current->left)
+                l_height = current->left->height;
+            if (current->right)
+                r_height = current->right->height;
+            current->height = std::max(l_height, r_height) + 1;
+            current = current->parent;
+        }
+    }
+
+    rbTree *delete_node()//the child if it exists or parent if not, if none then 0
+    {
+        rbTree *ret_node;
+        if (left && right)
+        {
+            // two children
+            rbTree *min_max;
+            if (left->height > right->height)
+            {
+                // get min right put it in its place
+                rbTree *min = right;
+                while (min->left)
+                    min = min->left;
+                min_max = min;
+            }
+            else
+            {
+                // get max left put it in its place
+                rbTree *max = left;
+                while (max->right)
+                    max = max->right;
+                min_max = max;
+            }
+
+            ret_node = min_max->parent; 
+            alloc.destroy(this->data);
+            alloc.construct(this->data, *(min_max->data));
+            // then delete that node //send it to this delete_node
+            min_max = min_max->delete_node();
+            min_max->fix_height_till(this);
+        }
+
+        else if (!left && !right)
+        {
+            // no children
+            if (parent)
+                (parent->left == this) ? parent->left = 0 : parent->right = 0;
+            ret_node = parent;
+            delete this;
+        }
+
+        else
+        {
+            // one child
+            rbTree *child = (left != 0) ? left : right;
+            child->parent = parent;
+            if (parent)
+                (parent->left == this) ? parent->left = child : parent->right = child;
+            ret_node = child;
+            // now delete this and its data
+            delete this;
+        }
+
+        return ret_node;
+        // shall return from where the balance should start, if no parent then returns 0 (tree empty)
+    };
+
+
+
+rbTree* find_delete(first_type key) //use on the root ofc
+{
+    if(data->first == key)
+    {
+        //(if 0 is returned then the parent is null)
+        //if no parent means the tree is empty now?
+        rbTree* node = delete_node();
+        // if(node)
+        //     node->balance(DELETION);
+        //if it sends back 0 in recursivity then tree empty do nothin
+        return node;//here keep going up the recursivity and if theres a node where no parent, you save that and send that back
+    
+    }
+
+    //if it sends back 0 in recursivity then tree empty do nothin
+    //or this that it didnt find the key
+    else if(key < data->first)
+    {
+        if(left)
+        {
+            rbTree* node = left->find_delete(key);
+
+            //fix height
+            size_t l_height = 0;
+            size_t r_height = 0;
+            if(left)
+                l_height = left->height;
+            if(right)
+                r_height = right->height;
+            height = std::max(l_height, r_height) + 1;
+            // balance(DELETION);
+            if(!parent)
+                node = this;
+            return(node);
+        }
+        else
+            return this;
+    }
+    else
+    {
+        if(right)
+        {
+            rbTree* node = right->find_delete(key);
+
+            //fix height
+            size_t l_height = 0;
+            size_t r_height = 0;
+            if(left)
+                l_height = left->height;
+            if(right)
+                r_height = right->height;
+            height = std::max(l_height, r_height) + 1;
+            // balance(DELETION);
+            if(!parent)//this wont segfault cus if it went through this then its not the one thats deleted
+                node = this;
+            return(node);
+        }
+        else
+            return this;
+    }
+};
+
+rbTree *delete_(first_type key) // you send the key apparently
+{
+    rbTree *root = find_delete(key);
+    if (root == 0)
+        // tree is empty, return a new root null
+        return NULL;
+    else
+    {
+        while (root->parent)
+            root = root->parent;
+        return root;
+    }
+    // return the root sent back(either caught or when its same), in case root is deleted or smth,
+
+}
+
+void delete_balance(bool Nodecolor)
+{
+    if(Nodecolor == RED)
+        return ;
+    
+}
 };
 };
 
 
 
 #endif
-
-
-
-// void fix_red_black_tree_after_insertion(Tree& T, Node* p) {
-//     while (p->color == RED) {
-//         if (p == p->parent->left) {  // is p's parent a left child?
-//             Node* y = p->parent->parent->right;  // y is p's uncle
-//             if (y->color == RED) {  // are p's parent and uncle both red?
-//                 // case 1: p's parent and uncle are both red
-//                 p->parent->color = BLACK;
-//                 y->color = BLACK;
-//                 p->parent->parent->color = RED;
-//                 p = p->parent->parent;
-//             } else {
-//                 if (p == p->parent->right) {
-//                     // case 2: p is a right child and uncle is black
-//                     p = p->parent;
-//                     left_rotate(T, p);
-//                 }
-//                 // case 3: p is a left child and uncle is black
-//                 p->parent->color = BLACK;
-//                 p->parent->parent->color = RED;
-//                 right_rotate(T, p->parent->parent);
-//             }
-//         } else {  // same as above, but with left and right exchanged
-//             Node* y = p->parent->parent->left;
-//             if (y->color == RED) {
-//                 p->parent->color = BLACK;
-//                 y->color = BLACK;
-//                 p->parent->parent->color = RED;
-//                 p = p->parent->parent;
-//             } else {
-//                 if (p == p->parent->left) {
-//                     p = p->parent;
-//                     right_rotate(T, p);
-//                 }
-//                 p->parent->color = BLACK;
-//                 p->parent->parent->color = RED;
-//                 left_rotate(T, p->parent->parent);
-//             }
-//         }
-//     }
-//     T.root->color = BLACK;
-// }
-
-
-
-
-// // Here is a modified version of the red-black tree insertion fixup function that does not use the T.root member to access the root of the tree. Instead, the function takes the root of the tree as an additional argument and keeps a reference to it in a local variable. This allows the function to operate on any subtree of the red-black tree, not just the entire tree.
-// Node* fix_red_black_tree_after_insertion(Tree& T, Node* root, Node* p) {
-//     //p meaning its parent is red
-//     Node* new_root = root;
-//     while (p->color == RED) {
-//         if (p == p->parent->left) {  // is p's parent a left child?
-//             Node* y = p->parent->parent->right;  // y is p's uncle
-//             if (y->color == RED) {  // are p's parent and uncle both red?
-//                 // case 1: p's parent and uncle are both red
-//                 p->parent->color = BLACK;
-//                 y->color = BLACK;
-//                 p->parent->parent->color = RED;
-//                 p = p->parent->parent;
-//             } else {
-//                 if (p == p->parent->right) {
-//                     // case 2: p is a right child and uncle is black
-//                     p = p->parent;
-//                     left_rotate(T, p);
-//                 }
-//                 // case 3: p is a left child and uncle is black
-//                 p->parent->color = BLACK;
-//                 p->parent->parent->color = RED;
-//                 right_rotate(T, p->parent->parent);
-//             }
-//         } else {  // same as above, but with left and right exchanged
-//             Node* y = p->parent->parent->left;
-//             if (y->color == RED) {
-//                 p->parent->color = BLACK;
-//                 y->color = BLACK;
-//                 p->parent->parent->color = RED;
-//                 p = p->parent->parent;
-//             } else {
-//                 if (p == p->parent->left) {
-//                     p = p->parent;
-//                     right_rotate(T, p);
-//                 }
-//                 p->parent->color = BLACK;
-//                 p->parent->parent->color = RED;
-//                 left_rotate(T, p->parent->parent);
-//             }
-//         }
-//         new_root = p;
-//     }
-//     root->color = BLACK;
-//     return new_root;
-// }
-
-// // In this version of the function, the first argument is still the Tree object, but the second argument is the root of the subtree where the insertion took place, and the third argument is the newly inserted node. The function keeps track of the new root of the subtree in the new_root variable and returns it at the end. Note that we still use the T object to call the left_rotate and right_rotate functions, as these functions need to modify the tree object.

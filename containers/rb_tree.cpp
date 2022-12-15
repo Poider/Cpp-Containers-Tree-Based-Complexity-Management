@@ -127,6 +127,7 @@ int main()
         // root = root->insert(make_pair(19,"rooty"));
 
         // root = root->find_node_key(14);
+        root = root->delete_(70);
         
         printTree(root);
         // std::cout << root->find_node_key(13)->parent<< std::endl;

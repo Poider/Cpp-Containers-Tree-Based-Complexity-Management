@@ -606,22 +606,15 @@ avl* delete_(first_type key)// you send the key apparently
         //tree is empty, return a new root null
         return NULL;
     else
-    {//fix this terqa3 and make it return the exact root?
+    {//if root returned the  its caught or still the same
         while(root->parent)
         {
-            std::cout << "sup" << std::endl;
+            // std::cout << "sup" << std::endl;
             root = root->parent;
         }
         return root;
     }
     //return the root sent back, in case root is deleted or smth,
-    //also put in a static var that'll rememeber the root through recursive
-
-        //return this so it stays the root
-    //what if you balance and a new root is there with a rotation, how to spot it?
-
-    //if null then no deletion happened
-    //get root in case it changed from that func
     
 }
 
