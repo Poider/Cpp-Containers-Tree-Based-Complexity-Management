@@ -195,6 +195,10 @@ int main()
         root = root->delete_(25);
         root = root->delete_(30);
         root = root->delete_(70);
+        root = root->delete_(16);
+        root = root->delete_(60);
+        // root = root->delete_(40);
+
 
 
         

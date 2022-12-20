@@ -22,11 +22,10 @@
 namespace ft{
 template <class T, class key_compare ,class value_compare ,class Allocator = std::allocator<T> >
 struct rbTree{
-    //update height whenever you insert or delete
     typedef typename T::first_type first_type;
 
 
-    //add static for both a var of root and a var of sentinel, sentinel is an object and root is a ptr
+    //add static for both a var of root and a var of sentinel, sentinel is an object and root is a ptr(on next trees implementation)
 
     Allocator alloc;
     key_compare k_comp;
@@ -196,11 +195,6 @@ struct rbTree{
                 if(temp)
                     root = temp;
                 
-                // if(i == 2)
-                // {
-                //     std::cout << right;
-                //     exit(1);
-                // }
             }
             else
             { 
@@ -542,10 +536,12 @@ T1   T3*/
             if (parent)
                 (parent->left == this) ? parent->left = 0 : parent->right = 0;
             ret_node = parent;
-            bool clr = color;
-            
-            if(clr == BLACK)
-                delete_fixup(0,root,ret_node);
+            if(!ret_node)
+            {
+                //means we deleted root thats alone and no balancing needed
+            }
+            else if(color == BLACK)
+                root = delete_fixup(0,root,ret_node);
             delete this;
         }
 
@@ -582,6 +578,7 @@ rbTree* find_delete(first_type key, rbTree* root) //use on the root ofc
         // if(node)
         //     node->balance(DELETION);
         //if it sends back 0 in recursivity then tree empty do nothin
+        
         return node;//here keep going up the recursivity and if theres a node where no parent, you save that and send that back
     
     }
@@ -605,6 +602,7 @@ rbTree* find_delete(first_type key, rbTree* root) //use on the root ofc
             // balance(DELETION);
             if(!parent)
                 node = this;
+
             return(node);
         }
         else
@@ -647,21 +645,19 @@ rbTree *delete_(first_type key) // you send the key apparently
     else
     {
         while (root->parent)
+        {
+            //this so it goes back to parent, cus we track back if we passed by root and register and turn it back,
+            // if we didnt pass by root and rotated and smth became root, meaning we wont passs by root, so maximum iterations this will mostly have is 1 I think
             root = root->parent;
+        }
         return root;
     }
     // return the root sent back(either caught or when its same), in case root is deleted or smth,
 
 }
 
-void delete_balance(bool Nodecolor)
-{
-    if(Nodecolor == RED)
-        return ;
-    
-}
 
-void delete_fixup(rbTree *x, rbTree *root, rbTree *x_parent)
+rbTree* delete_fixup(rbTree *x, rbTree *root, rbTree *x_parent)
 {
     bool clr = BLACK;
     while (x_parent != NULL && clr == BLACK)
@@ -761,8 +757,6 @@ void delete_fixup(rbTree *x, rbTree *root, rbTree *x_parent)
                 }
                 
                 x_parent->color = BLACK;
-                // std::cout << x_parent->data->first << std::endl;
-                // exit(0);
                 rbTree *tmp = 0;
                 tmp = right_rotate(x_parent);
                 if(tmp)
@@ -775,6 +769,7 @@ void delete_fixup(rbTree *x, rbTree *root, rbTree *x_parent)
         }
     }
     x->color = BLACK;
+    return root;
 }
 };
 };
