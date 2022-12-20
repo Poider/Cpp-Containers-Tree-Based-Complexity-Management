@@ -411,7 +411,7 @@ struct rbTree{
                 r_height = x->right->height;
         }
         x->height = std::max(l_height, r_height) + 1;
-         //if its the root now it returns it otherwise nothing
+        //if its the root now it returns it otherwise nothing
         if(x->parent)
             return 0;
         return x;
@@ -501,15 +501,19 @@ T1   T3*/
             current = current->parent;
         }
     }
+    rbTree *sibling()
+    {
+        rbTree *node = (this == parent->left?parent->right:parent->left);
+        return(node);
+    }
 
-    rbTree *delete_node()//the child if it exists or parent if not, if none then 0
+    rbTree *delete_node(rbTree *root)//the child if it exists or parent if not, if none then 0
     {
         rbTree *ret_node;
         if (left && right)
         {
             // two children
             rbTree *min_max;
-            if (left->height > right->height)
             {
                 // get min right put it in its place
                 rbTree *min = right;
@@ -517,29 +521,31 @@ T1   T3*/
                     min = min->left;
                 min_max = min;
             }
-            else
-            {
-                // get max left put it in its place
-                rbTree *max = left;
-                while (max->right)
-                    max = max->right;
-                min_max = max;
-            }
 
             ret_node = min_max->parent; 
             alloc.destroy(this->data);
             alloc.construct(this->data, *(min_max->data));
             // then delete that node //send it to this delete_node
-            min_max = min_max->delete_node();
+            bool clr = min_max->color;
+            min_max = min_max->delete_node(root);
+            // if(color == BLACK && clr == BLACK)
+            //     delete_fixup(this,root,parent);
+            // else if(color == BLACK || clr == BLACK)
+            //     color = BLACK;
             min_max->fix_height_till(this);
         }
 
         else if (!left && !right)
         {
             // no children
+
             if (parent)
                 (parent->left == this) ? parent->left = 0 : parent->right = 0;
             ret_node = parent;
+            bool clr = color;
+            
+            if(clr == BLACK)
+                delete_fixup(0,root,ret_node);
             delete this;
         }
 
@@ -552,6 +558,11 @@ T1   T3*/
                 (parent->left == this) ? parent->left = child : parent->right = child;
             ret_node = child;
             // now delete this and its data
+            bool clr = color;
+            if(clr == BLACK && child->color == BLACK)
+                delete_fixup(child,root,child->parent);//now check rotations
+            else if(clr == BLACK || child->color == BLACK)
+                child->color = BLACK;
             delete this;
         }
 
@@ -561,13 +572,13 @@ T1   T3*/
 
 
 
-rbTree* find_delete(first_type key) //use on the root ofc
+rbTree* find_delete(first_type key, rbTree* root) //use on the root ofc
 {
     if(data->first == key)
     {
         //(if 0 is returned then the parent is null)
         //if no parent means the tree is empty now?
-        rbTree* node = delete_node();
+        rbTree* node = delete_node(root);
         // if(node)
         //     node->balance(DELETION);
         //if it sends back 0 in recursivity then tree empty do nothin
@@ -581,7 +592,7 @@ rbTree* find_delete(first_type key) //use on the root ofc
     {
         if(left)
         {
-            rbTree* node = left->find_delete(key);
+            rbTree* node = left->find_delete(key,root);
 
             //fix height
             size_t l_height = 0;
@@ -603,7 +614,7 @@ rbTree* find_delete(first_type key) //use on the root ofc
     {
         if(right)
         {
-            rbTree* node = right->find_delete(key);
+            rbTree* node = right->find_delete(key,root);
 
             //fix height
             size_t l_height = 0;
@@ -625,7 +636,11 @@ rbTree* find_delete(first_type key) //use on the root ofc
 
 rbTree *delete_(first_type key) // you send the key apparently
 {
-    rbTree *root = find_delete(key);
+
+    rbTree *root = this;
+    while(root->parent)
+        root = root->parent;
+    root = find_delete(key,root);
     if (root == 0)
         // tree is empty, return a new root null
         return NULL;
@@ -645,9 +660,128 @@ void delete_balance(bool Nodecolor)
         return ;
     
 }
+
+void delete_fixup(rbTree *x, rbTree *root, rbTree *x_parent)
+{
+    bool clr = BLACK;
+    while (x_parent != NULL && clr == BLACK)
+    {
+        if (x == x_parent->left)
+        {
+            rbTree *w = x_parent->right;
+            // type 1
+            if (w && w->color == RED)
+            {
+                w->color = BLACK;
+                x_parent->color = RED;
+                rbTree *tmp = 0;
+                tmp = left_rotate(x_parent);
+                if(tmp)
+                    root = tmp;
+                w = x_parent->right;
+            }
+            // type 2
+            if (w && (!w->left || w->left->color == BLACK) && (!w->right || w->right->color == BLACK))
+            {
+                w->color = RED;
+                x = x_parent;
+                x_parent = x->parent;
+                clr = x->color;
+            }
+            else
+            {
+                // type 3
+                if (w && (!w->right || w->right->color == BLACK))
+                {
+                    w->left->color = BLACK;
+                    w->color = RED;
+                    rbTree *tmp = 0;
+                    tmp = right_rotate(w);
+                    if(tmp)
+                        root = tmp;
+                    w = x_parent->right;
+                }
+                // type 4
+                if(w)
+                {
+                    w->color = x_parent->color;
+                    w->right->color = BLACK;
+                }
+                x_parent->color = BLACK;
+                rbTree *tmp = 0;
+                tmp = left_rotate(x_parent);
+                if(tmp)
+                    root = tmp;
+                x = root;
+                x_parent = x->parent;
+                clr = x->color;
+            }
+        }
+        else
+        {
+            rbTree *w = x_parent->left;
+            // type 1
+            if (w && w->color == RED)
+            {
+                w->color = BLACK;
+                x_parent->color = RED;
+                rbTree *tmp = 0;
+                tmp = right_rotate(x_parent);
+                if(tmp)
+                    root = tmp;
+                w = x_parent->left;
+            }
+            // type 2
+            
+            if (w && (!w->right || w->right->color == BLACK) && (!w->left || w->left->color == BLACK))
+            {
+                w->color = RED;
+                x = x_parent;
+                x_parent = x->parent;
+                clr = x->color;
+            }
+            else
+            {
+                // type 3
+                if (w && (!w->left ||w->left->color == BLACK))
+                {
+                    w->right->color = BLACK;
+                    w->color = RED;
+                    rbTree *tmp = 0;
+                    tmp = left_rotate(w);
+                    if(tmp)
+                        root = tmp;
+                    w = x_parent->left;
+                }
+                // type 4
+                if(w)
+                {
+                    w->color = x_parent->color;
+                    w->left->color = BLACK;
+                }
+                
+                x_parent->color = BLACK;
+                // std::cout << x_parent->data->first << std::endl;
+                // exit(0);
+                rbTree *tmp = 0;
+                tmp = right_rotate(x_parent);
+                if(tmp)
+                    root = tmp;
+                x = root;         
+                x_parent = x->parent;
+                clr = x->color;
+                
+            }
+        }
+    }
+    x->color = BLACK;
+}
 };
 };
 
 
 
 #endif
+
+
+
