@@ -1,4 +1,4 @@
-#ifndef _RED_BLACK
+#ifndef _RED_BLACK //adding comp // changed new to use allocator instead for nodes
 #define _RED_BLACK
 #include <memory>
 

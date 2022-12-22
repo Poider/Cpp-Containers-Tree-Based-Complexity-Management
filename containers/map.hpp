@@ -8,7 +8,7 @@
 #include "pair.hpp"
 #include <functional>
 #include "avl_tree.hpp"
-
+#include "map_iterator.hpp"
 namespace ft {
   
   template<class Key, class T, class Compare = std::less<Key>,
@@ -29,11 +29,12 @@ namespace ft {
     typedef typename allocator_type::size_type       size_type;//std::size_t
     typedef typename allocator_type::difference_type difference_type;//std::ptrdiff_t
 
-    typedef implementation-defined                   iterator;//LegacyBidirectionalIterator to value_type
-    typedef implementation-defined                   const_iterator;//LegacyBidirectionalIterator to const value_type
-    typedef std::reverse_iterator<iterator>          reverse_iterator;//	std::reverse_iterator<iterator>
-    typedef std::reverse_iterator<const_iterator>    const_reverse_iterator;//std::reverse_iterator<const_iterator>
+    typedef MapIterator<pointer>                   iterator;//LegacyBidirectionalIterator to value_type
+    typedef MapIterator<const_pointer>                   const_iterator;//LegacyBidirectionalIterator to const value_type
+    typedef ft::reverse_iterator<iterator>          reverse_iterator;//	std::reverse_iterator<iterator>
+    typedef ft::reverse_iterator<const_iterator>    const_reverse_iterator;//std::reverse_iterator<const_iterator>
     
+    //makes the key compare work on pairs
     class value_compare: public binary_function<value_type, value_type, bool>
     {
         friend class map;
@@ -52,14 +53,21 @@ namespace ft {
     };
 
     private:
-    avl<value_type, key_compare, value_compare, allocator_type> root;
+    typedef avl<value_type, key_compare, value_compare, allocator_type> node_type;
+    node_type *root;
+    node_type *last;
     size_type _size;
     key_compare _comp;
     allocator_type alloc;
+
+    //compare wrapper>> make a pair compare that'll compare keys of the pair
+
+    public:
 //>>>>> member funcs
     map()
     {
         root = NULL;
+        last = NULL;
         _size = 0;
     };
 
@@ -67,6 +75,7 @@ namespace ft {
                  const Allocator &alloc = Allocator())
                  {
                      root = NULL;
+                     last = NULL;
                      _size = 0;
                      _comp = comp;
                      this->alloc = alloc;
@@ -84,6 +93,7 @@ namespace ft {
         _size;
         _comp;
         alloc;
+        //insert range from other begin to other end?
         //root; copy the others deep copy
     };
 
@@ -107,9 +117,21 @@ namespace ft {
     const_reverse_iterator rend() const;
 
 //>>>>>> capacity
-    bool empty() const;
-    size_type size() const;
-    size_type max_size() const;
+    bool empty() const
+    {
+        return(size == 0);
+    };
+    size_type size() const
+    {
+        return(size);
+    };
+    size_type max_size() const
+    {
+        size_type s = alloc.max_size();
+        if(s > PTRDIFF_MAX)
+            s = PTRDIFF_MAX; 
+        return (s);
+    };
 
 
 //>>>>>>> modifiers

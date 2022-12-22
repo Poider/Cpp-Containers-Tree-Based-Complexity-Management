@@ -11,14 +11,15 @@
 //this avl tree will work when class T is a pair
 //do enable if to see if class T is a pair?
 namespace ft{
-template <class T, class key_compare ,class value_compare ,class Allocator = std::allocator<T> >
+template <class T,class key_compare = std::less<typename T::first_type>,class value_compare = std::less<T> ,class Allocator = std::allocator<T> >
 struct avl{
     //update height whenever you insert or delete
     typedef typename T::first_type first_type;
 
+    std::allocator<ft::avl<T, key_compare, value_compare, Allocator> > node_alloc;
     Allocator alloc;
-    key_compare k_comp;
     value_compare v_comp;
+    key_compare k_comp;
     T    *data;
     size_t height;
     avl *parent;
@@ -93,7 +94,9 @@ struct avl{
 //these put new node at a null node
     void put_left(T data)
     {
-        avl *temp = new avl();
+        // avl *temp = new avl();
+        avl *temp = node_alloc.allocate(1);
+        node_alloc.construct(temp,avl());
         temp->data = alloc.allocate(1);
         temp->height = 1;
         alloc.construct(temp->data, data);
@@ -103,7 +106,9 @@ struct avl{
     
     void put_right(T data)
     {
-        avl *temp = new avl();
+        // avl *temp = new avl();
+        avl *temp = node_alloc.allocate(1);
+        node_alloc.construct(temp,avl());
         temp->data = alloc.allocate(1);
         temp->height = 1;
 
@@ -128,7 +133,7 @@ struct avl{
         {
             put_data(data);
         }
-        else if(*(this->data) > data)//rest if no nodes it inserts
+        else if(v_comp(data, *(this->data)))//rest if no nodes it inserts
         {
             if(!left)
             {
@@ -150,7 +155,7 @@ struct avl{
                     root = temp;
             }
         }
-        else if(*(this->data) < data)
+        else if(v_comp(*(this->data), data))
         {
             if(!right)
             {
@@ -230,7 +235,7 @@ struct avl{
 
 
 
-            if(data < *(right->data))
+            if(v_comp(data, *(right->data)))
             {
 
                 std::cout << "RL" << std::endl;
@@ -260,7 +265,7 @@ struct avl{
                 data  = (diff2 < 0)? *(left->right->data) : *(left->left->data);
             }
 
-            if(data < *(left->data))
+            if(v_comp(data, *(left->data)))
             {
                 std::cout << "LL" << std::endl;
                 root = right_rotate(this);
@@ -486,7 +491,9 @@ avl* delete_node()
         if(parent)
             (parent->left == this)? parent->left = 0 : parent->right = 0;
         ret_node = parent;
-        delete this;
+        node_alloc.destroy(this);
+        node_alloc.deallocate(this,1);
+        // delete this;
        
     }
 
@@ -499,7 +506,9 @@ avl* delete_node()
             (parent->left == this)? parent->left = child : parent->right = child;
         ret_node = child;
         //now delete this and its data
-        delete this;
+        node_alloc.destroy(this);
+        node_alloc.deallocate(this,1);
+        // delete this;
     }
 
     return ret_node;
@@ -514,7 +523,7 @@ avl* find_node_key(first_type key) //use on the root ofc
     {
         if(node->data->first == key)
             break;
-        if(key < node->data->first)
+        if(k_comp(key, node->data->first))
         {
             if(node->left)
                 node = node->left;
@@ -551,7 +560,7 @@ avl* find_delete(first_type key) //use on the root ofc
 
     //if it sends back 0 in recursivity then tree empty do nothin
     //or this that it didnt find the key
-    else if(key < data->first)
+    else if(k_comp(key, data->first))
     {
         if(left)
         {
@@ -624,7 +633,7 @@ avl* delete_(first_type key)// you send the key apparently
 }
 
 template <class T, class key_compare ,class value_compare ,class Allocator>
-        std::ostream& operator<<(std::ostream& os, const ft::avl<T,key_compare,value_compare,Allocator>& p)
+        std::ostream& operator<<(std::ostream& os, const ft::avl<T,value_compare,Allocator>& p)
         {
             if(p.data == 0)
                 os << "null data";
@@ -633,7 +642,7 @@ template <class T, class key_compare ,class value_compare ,class Allocator>
             return os;
         }
 template <class T, class key_compare ,class value_compare ,class Allocator>
-        std::ostream& operator<<(std::ostream& os, const ft::avl<T,key_compare,value_compare,Allocator> *p)
+        std::ostream& operator<<(std::ostream& os, const ft::avl<T,value_compare,Allocator> *p)
         {
             if(p == 0)
                 os << "null";
