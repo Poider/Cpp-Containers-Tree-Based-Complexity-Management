@@ -15,7 +15,7 @@ template <class T,class key_compare = std::less<typename T::first_type>,class va
 struct avl{
     //update height whenever you insert or delete
     typedef typename T::first_type first_type;
-
+    
     std::allocator<ft::avl<T, key_compare, value_compare, Allocator> > node_alloc;
     Allocator alloc;
     value_compare v_comp;
@@ -44,6 +44,20 @@ struct avl{
         right = 0;
     };
 
+    avl(T data, key_compare& k_comp, value_compare& v_comp,Allocator& alloc)
+    {
+        this->k_comp = k_comp;
+        this->v_comp = v_comp;
+        this->alloc = alloc;
+        this->data = alloc.allocate(1);
+        alloc.construct(this->data, data);
+        
+        parent = 0;
+        height = 1;
+        left = 0;
+        right = 0;
+    };
+
     avl(const avl& other)
     {
         alloc = other.alloc;
@@ -52,6 +66,9 @@ struct avl{
             this->data = alloc.allocate(1);
             alloc.construct(this->data, *(other.data));
         }
+        alloc = other.alloc;
+        v_comp = other.v_comp;
+        k_comp = other.k_comp;
         parent = 0;
         left = 0;
         height = 1;
@@ -68,7 +85,8 @@ struct avl{
                 alloc.deallocate(data,1);
             }
             alloc = other.alloc;
-            
+            v_comp = other.v_comp;
+            k_comp = other.k_comp;
             this->data = alloc.allocate(1);
             alloc.construct(this->data, *(other.data));
         }
@@ -125,7 +143,7 @@ struct avl{
     
 //use balance on each level as it goes up (checks diff between height of right and of left)
 //while tryna insert ++ height of each node passed by?
-    avl *insert_node(T data)//use key compare or value compare here
+    avl *insert_node(T data, size_t &size)//use key compare or value compare here
     {
         avl* root = 0;
         avl* temp = 0;
@@ -180,16 +198,17 @@ struct avl{
         else
         {
             //if same key? change old data
+            size--;
             alloc.destroy(this->data);
             alloc.construct(this->data, data);
         }
         return root;
     };
 
-    avl* insert(T data)//must be used in the root
+    avl* insert(T data, size_t & size)//must be used in the root
     {
         // make it so if(parent doesnt exists then it does otherwise it wont)
-        avl* root = insert_node(data);
+        avl* root = insert_node(data,size);
         if(root)
             return root;
         else

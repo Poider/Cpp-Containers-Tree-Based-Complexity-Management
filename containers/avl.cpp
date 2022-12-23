@@ -14,7 +14,7 @@ using namespace ft;
 template<class T>
 struct k_comp{
     bool operator()(const T &a, const T &b) const {
-        return a > b;
+        return std::less(a.b);
     }
 };
 template<class T>

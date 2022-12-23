@@ -28,11 +28,8 @@ namespace ft {
     typedef typename allocator_type::const_pointer   const_pointer;//Allocator::const_pointer 
     typedef typename allocator_type::size_type       size_type;//std::size_t
     typedef typename allocator_type::difference_type difference_type;//std::ptrdiff_t
-
-    typedef MapIterator<pointer>                   iterator;//LegacyBidirectionalIterator to value_type
-    typedef MapIterator<const_pointer>                   const_iterator;//LegacyBidirectionalIterator to const value_type
-    typedef ft::reverse_iterator<iterator>          reverse_iterator;//	std::reverse_iterator<iterator>
-    typedef ft::reverse_iterator<const_iterator>    const_reverse_iterator;//std::reverse_iterator<const_iterator>
+    //iterator send it other shit than this
+   
     
     //makes the key compare work on pairs
     class value_compare: public binary_function<value_type, value_type, bool>
@@ -51,15 +48,24 @@ namespace ft {
             return comp(x.first, y.first);
         }
     };
+    
+    typedef MapIterator<avl<value_type, key_compare, value_compare, allocator_type>*, value_compare>      iterator;//LegacyBidirectionalIterator to value_type
+    typedef MapIterator<const avl<value_type, key_compare, value_compare, allocator_type>*, value_compare>                   const_iterator;//LegacyBidirectionalIterator to const value_type
+    typedef ft::reverse_iterator<iterator>          reverse_iterator;//	std::reverse_iterator<iterator>
+    typedef ft::reverse_iterator<const_iterator>    const_reverse_iterator;//std::reverse_iterator<const_iterator>
+
+
 
     private:
     typedef avl<value_type, key_compare, value_compare, allocator_type> node_type;
-    node_type *root;
-    node_type *last;
-    size_type _size;
+    node_type *root;//
+    node_type *max;//make getters for these
+    node_type *min;//
+    size_type _size;//
     key_compare _comp;
+    value_compare _v_comp;
     allocator_type alloc;
-
+    std::allocator<ft::avl<T, key_compare, value_compare, Allocator> > node_alloc;
     //compare wrapper>> make a pair compare that'll compare keys of the pair
 
     public:
@@ -67,17 +73,24 @@ namespace ft {
     map()
     {
         root = NULL;
-        last = NULL;
+        max = NULL;
+        min = NULL;
         _size = 0;
     };
 
+
+//when alloc changes and comp or smth, update it in root one, cus it makes the calls, unless youll do a call from another one thats not root then update its things then do the operation
+// make it change vcomps etc on stuff that wont work with the root, otherwise just change it in root
+//if you copy or smth, make if root then root -> comp alloc change
     explicit map(const Compare &comp,
                  const Allocator &alloc = Allocator())
                  {
                      root = NULL;
-                     last = NULL;
+                     max = NULL;
+                     min = NULL;
                      _size = 0;
                      _comp = comp;
+                     _v_comp = value_compare();//I redo it cus if comp change I need it to re declare the comp in that class var
                      this->alloc = alloc;
                  };
 
@@ -86,26 +99,66 @@ namespace ft {
                 const Compare &comp = Compare(),
                 const Allocator &alloc = Allocator())
                 {
+                    //line 76
                     //insert node by node
                 };
     map(const map &other)
     {
-        _size;
-        _comp;
-        alloc;
+        *this = other;
         //insert range from other begin to other end?
         //root; copy the others deep copy
     };
 
-    ~map();
-    map& operator=( const map& other );
-    allocator_type get_allocator() const;
+    ~map(){
+        if(root)
+        {
+            //recursive or iterativly delete its children then
+            //delete root
+        }
+    };
+
+    map& operator=( const map& other )
+    {
+        _size = other.size();
+        _comp = other._comp;
+        alloc = other._alloc;
+        //insert all the other nodes
+        //max / min, when you insert the max and min of other in this, make that address in min max here
+    };
+
+    allocator_type get_allocator() const
+    {
+        return alloc;
+    };
 
 //>>>>> element access
-    T& at( const Key& key );
-    const T& at( const Key& key ) const;
-    T& operator[]( const Key& key );
+    T& at( const Key& key )
+    {
+        node_type *tmp = root->find_node_key(key)
+        if(!tmp)
+            throw std::out_of_range("no element with that key found");
+        return (*tmp);
+    };
 
+    const T& at( const Key& key ) const
+    {
+        node_type *tmp = root->find_node_key(key)
+        if(!tmp)
+            throw std::out_of_range("no element with that key found");
+        return (*tmp);
+    };
+
+    T& operator[]( const Key& key );
+    {
+        node_type *tmp = root->find_node_key(key)
+        if(!tmp)
+        {
+            tmp = insert(make_pair(k,mapped_type()));
+            //idk what tmp type but basically insert and bring back reference to the second one?
+
+
+        }
+    }
 //>>>>> iterators
     iterator begin();
     const_iterator begin() const;
@@ -136,7 +189,20 @@ namespace ft {
 
 //>>>>>>> modifiers
     void clear();
-    std::pair<iterator, bool> insert( const value_type& value );
+
+    std::pair<iterator, bool> insert( const value_type& value )
+    {
+        _size++;
+        if(!root)
+        {
+            root = node_alloc.allocate(1);
+            node_alloc.construct(root, avl(value,_comp,_v_comp,alloc));
+        }
+        else
+        {
+            root = root.insert(value,_size);
+        }
+    };
     iterator insert( iterator hint, const value_type& value );
 
     template< class InputIt >

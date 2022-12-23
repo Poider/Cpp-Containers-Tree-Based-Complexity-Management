@@ -18,29 +18,31 @@
 #include <memory>
 #include <algorithm>
 #include <iterator>
+#include <map>
 #include "iterator_traits.hpp"
 template <class T, class Allocator>
-class map_ptrtor;
+class map;
 
 namespace ft{
-template <typename map_ptr>
+template <typename map_ptr, class value_compare>
     class MapIterator
 {
     public :
         typedef map_ptr                                                 iterator_type;
-        typedef typename iterator_traits<map_ptr>::value_type           value_type;
-        typedef typename iterator_traits<map_ptr>::difference_type      difference_type;
+        typedef typename iterator_traits<map_ptr, std::bidirectional_iterator_tag>::value_type           value_type;
+        typedef typename iterator_traits<map_ptr, std::bidirectional_iterator_tag>::difference_type      difference_type;
         typedef typename std::size_t                                size_type;
-        typedef typename iterator_traits<map_ptr>::iterator_category    iterator_category;
-        typedef typename iterator_traits<map_ptr>::pointer                pointer;
+        typedef typename iterator_traits<map_ptr, std::bidirectional_iterator_tag>::iterator_category    iterator_category;
+        typedef typename iterator_traits<map_ptr, std::bidirectional_iterator_tag>::pointer                pointer;
         typedef const  pointer          const_pointer;
-        typedef typename iterator_traits<map_ptr>::reference              reference;
+        typedef typename iterator_traits<map_ptr, std::bidirectional_iterator_tag>::reference              reference;
         typedef const  reference          const_reference;
     private :
-        pointer ptr;
+        value_compare v_comp;
+        pointer node_ptr;
         template <class T1, class Allocator1>
-           friend class map_ptrtor;
-        MapIterator(pointer ptr):ptr(ptr) 
+           friend class map;
+        MapIterator(pointer node_ptr,value_compare cmp):node_ptr(node_ptr),v_comp(cmp)    // send in comparator too
         {};
 
         //>>>>>friends
@@ -53,83 +55,129 @@ template <typename map_ptr>
     public :
         pointer base() const
         {
-            return ptr;
+            return node_ptr;
         };
         //default constructible only from forward iterator and ahead
         MapIterator(){};
 
-        template <typename s>
-        MapIterator(const MapIterator<s> &other) {
-            this->ptr = other.base();
+        template <typename s,class v>
+        MapIterator(const MapIterator<s,v> &other) {
+            this->node_ptr = other.base();
         };
 
-        template <typename s>
-        MapIterator<map_ptr>& operator=(const MapIterator<s> &other)
+        template <typename s,class v>
+        MapIterator<map_ptr,value_compare>& operator=(const MapIterator<s,v> &other)
         {
-            this->ptr = other.base();
+            this->node_ptr = other.base();
             return *this;
         };
         ~MapIterator(){};
 
         //increments
-            MapIterator<map_ptr>& operator++()//++x
+            MapIterator<map_ptr,value_compare>& operator++()//++x
             {
-                ptr++;
+                if (node_ptr->right) 
+                {
+                    node_ptr = node_ptr->right;
+                    while (node_ptr->left)
+                        node_ptr = node_ptr->left;
+                }
+                else
+                {
+                    while (node_ptr->parent && node_ptr->parent->right == node_ptr)
+                        node_ptr = node_ptr->parent;
+                    node_ptr = node_ptr->parent;
+                }
                 return *this;
             };
-            MapIterator<map_ptr> operator++(int)//x++
+            MapIterator<map_ptr,value_compare> operator++(int)//x++
             {
-                MapIterator<map_ptr> temp = *this;
-                ptr++;
+                MapIterator<map_ptr,value_compare> temp = *this;
+                if (node_ptr->right) 
+                {
+                    node_ptr = node_ptr->right;
+                    while (node_ptr->left)
+                        node_ptr = node_ptr->left;
+                }
+                else
+                {
+                    while (node_ptr->parent && node_ptr->parent->right == node_ptr)
+                        node_ptr = node_ptr->parent;
+                    node_ptr = node_ptr->parent;
+                }
                 return temp;
             };
-            MapIterator<map_ptr>& operator--()
+            MapIterator<map_ptr,value_compare>& operator--()
             {
-                ptr--;
+                if (node_ptr->left) 
+                {
+                    node_ptr = node_ptr->left;
+                    while (node_ptr->right)
+                        node_ptr = node_ptr->right;
+                }
+                else
+                {
+                    while (node_ptr->parent && node_ptr->parent->left == node_ptr)
+                        node_ptr = node_ptr->parent;
+                    node_ptr = node_ptr->parent;
+                }
+
                 return *this;
             };
-            MapIterator<map_ptr> operator--(int)
+
+            MapIterator<map_ptr,value_compare> operator--(int)
             {
-                MapIterator<map_ptr> temp =*this;
-                ptr--;
+                MapIterator<map_ptr,value_compare> temp =*this;
+                if (node_ptr->left) 
+                {
+                    node_ptr = node_ptr->left;
+                    while (node_ptr->right)
+                        node_ptr = node_ptr->right;
+                }
+                else
+                {
+                    while (node_ptr->parent && node_ptr->parent->left == node_ptr)
+                        node_ptr = node_ptr->parent;
+                    node_ptr = node_ptr->parent;
+                }
                 return (temp);
             };
 
           
-            MapIterator<map_ptr> operator+(int a) const
-            {
-                MapIterator<map_ptr>  temp;
-                temp.ptr = ptr + a;
-                return temp;
-            };
-            template <class iter>
-            friend MapIterator<iter> operator+(int a, const MapIterator<iter>& map_ptrtor);
-            MapIterator<map_ptr> operator-(int a)const
-            {
-                MapIterator<map_ptr>  temp;
-                temp.ptr = ptr - a;
-                return temp;
-            };
+            // MapIterator<map_ptr> operator+(int a) const
+            // {
+            //     MapIterator<map_ptr>  temp;
+            //     temp.node_ptr = node_ptr + a;
+            //     return temp;
+            // };
+            // template <class iter>
+            // friend MapIterator<iter> operator+(int a, const MapIterator<iter>& map);
+            // MapIterator<map_ptr> operator-(int a)const
+            // {
+            //     MapIterator<map_ptr>  temp;
+            //     temp.node_ptr = node_ptr - a;
+            //     return temp;
+            // };
 
-            difference_type operator-(MapIterator<map_ptr> other)const
-            {
-                difference_type a;
+            // difference_type operator-(MapIterator<map_ptr> other)const
+            // {
+            //     difference_type a;
                 
-                a = ptr - other.ptr;
-                return a;
-            };
+            //     a = node_ptr - other.node_ptr;
+            //     return a;
+            // };
 
            
-            MapIterator& operator+=(int amount)
-            {
-                ptr = ptr + amount;
-                return *this;
-            };
-            MapIterator& operator-=(int amount)
-            {
-                ptr = ptr - amount;
-                return *this;
-            };
+            // MapIterator& operator+=(int amount)
+            // {
+            //     node_ptr = node_ptr + amount;
+            //     return *this;
+            // };
+            // MapIterator& operator-=(int amount)
+            // {
+            //     node_ptr = node_ptr - amount;
+            //     return *this;
+            // };
             
             /*
             //operator * -> const op const for lvalue
@@ -137,55 +185,55 @@ template <typename map_ptr>
             */
             const_pointer operator->() const
             {
-                return ptr;
+                return node_ptr->data;
             };
             const_reference operator*() const
             {
-                return *ptr;
+                return *(node_ptr->data);
             };
             pointer operator->()
             {
-                return ptr;
+                return node_ptr->data;
             };
             reference operator*()
             {
-                return *ptr;
+                return *(node_ptr->data);
             };
 
             /**
              * @explanation
              * 
-             [] is the ptr + number * hops
+             [] is the node_ptr + number * hops
              op [] const op const // for read only in const objs
              op [] not const for writing
             */
-            reference operator[](int index)
-            {
-                return *(ptr + index);
-            };
-            const_reference operator[](int index)const
-            {
-                return *(ptr + index);
-            };
+            // reference operator[](int index)
+            // {
+            //     return *(node_ptr + index);
+            // };
+            // const_reference operator[](int index)const
+            // {
+            //     return *(node_ptr + index);
+            // };
 
         // multipass?
-             template <typename iterator1, typename iterator2>
-            friend bool operator==(const MapIterator<iterator1> &it1, const MapIterator<iterator2> &it2);
+             template <typename iterator1, class cmp1, typename iterator2, class cmp2>
+            friend bool operator==(const MapIterator<iterator1, cmp1> &it1, const MapIterator<iterator2, cmp2> &it2);
             
-            template <typename iterator1, typename iterator2>
-            friend bool operator!=(const MapIterator<iterator1> &it1, const MapIterator<iterator2> &it2);
+            template <typename iterator1, class cmp1, typename iterator2, class cmp2>
+            friend bool operator!=(const MapIterator<iterator1, cmp1> &it1, const MapIterator<iterator2, cmp2> &it2);
 
-            template <typename iterator1, typename iterator2>
-            friend bool operator>(const MapIterator<iterator1> &it1, const MapIterator<iterator2> &it2);
+            // template <typename iterator1, typename iterator2>
+            // friend bool operator>(const MapIterator<iterator1> &it1, const MapIterator<iterator2> &it2);
 
-            template <typename iterator1, typename iterator2>
-            friend bool operator>=(const MapIterator<iterator1> &it1, const MapIterator<iterator2> &it2);
+            // template <typename iterator1, typename iterator2>
+            // friend bool operator>=(const MapIterator<iterator1> &it1, const MapIterator<iterator2> &it2);
 
-            template <typename iterator1, typename iterator2>
-            friend bool operator<(const MapIterator<iterator1> &it1, const MapIterator<iterator2> &it2);
+            // template <typename iterator1, typename iterator2>
+            // friend bool operator<(const MapIterator<iterator1> &it1, const MapIterator<iterator2> &it2);
 
-            template <typename iterator1, typename iterator2>
-            friend bool operator<=(const MapIterator<iterator1> &it1, const MapIterator<iterator2> &it2);
+            // template <typename iterator1, typename iterator2>
+            // friend bool operator<=(const MapIterator<iterator1> &it1, const MapIterator<iterator2> &it2);
     };
 
 
@@ -206,7 +254,7 @@ template <typename iterator>
         // pointer ptr;
         iterator_type it;
         template <class T1, class Allocator1>
-           friend class map_ptrtor;
+           friend class map;
         reverse_iterator(pointer ptr) 
         {
             it = iterator_type(ptr);
@@ -272,7 +320,7 @@ template <typename iterator>
                 return temp;
             };
             template <class iter>
-            friend reverse_iterator<iter> operator+(int a, const reverse_iterator<iter>& map_ptrtor);
+            friend reverse_iterator<iter> operator+(int a, const reverse_iterator<iter>& map);
             reverse_iterator<iterator> operator-(int a)const
             {
                 reverse_iterator<iterator>  temp;
@@ -368,8 +416,8 @@ template <typename iterator>
 
 
 
-template <class map_ptr>
-MapIterator<map_ptr> operator+(int a, const MapIterator<map_ptr>& iter)
+template <class map_ptr, class value_compare>
+MapIterator<map_ptr,value_compare> operator+(int a, const MapIterator<map_ptr,value_compare>& iter)
 {
     MapIterator<map_ptr>  temp1;
     temp1 = iter.operator+(a);
@@ -399,62 +447,15 @@ bool operator!=(const reverse_iterator<iterator1> &it1,const reverse_iterator<it
     return (it1.it != it2.it);
 };
 
-template<typename iterator1,typename iterator2>
-bool operator>(const MapIterator<iterator1> &it1,const MapIterator<iterator2> &it2)
-{
-    return (it1.ptr > it2.ptr);
-};
 
-template<typename iterator1,typename iterator2>
-bool operator>=(const MapIterator<iterator1> &it1,const MapIterator<iterator2> &it2)
-{
-    return (it1.ptr >= it2.ptr);
-};
-
-template<typename iterator1,typename iterator2>
-bool operator<(const MapIterator<iterator1> &it1,const MapIterator<iterator2> &it2)
-{
-    return (it1.ptr < it2.ptr);
-};
-
-template<typename iterator1,typename iterator2>
-bool operator<=(const MapIterator<iterator1> &it1,const MapIterator<iterator2> &it2)
-{
-    return (it1.ptr <= it2.ptr);
-};
-
-template<typename iterator1,typename iterator2>
-bool operator>(const reverse_iterator<iterator1> &it1,const reverse_iterator<iterator2> &it2)
-            {
-                return (it1.it < it2.it);
-                   
-            };
-template<typename iterator1,typename iterator2>         
-bool operator>=(const reverse_iterator<iterator1> &it1,const reverse_iterator<iterator2> &it2)
-{
-    return (it1.it <= it2.it);
-};
-
-template<typename iterator1,typename iterator2>
-bool operator<(const reverse_iterator<iterator1> &it1,const reverse_iterator<iterator2> &it2)
-{
-    return (it1.it > it2.it);
-};
-
-template<typename iterator1,typename iterator2>
-bool operator<=(const reverse_iterator<iterator1> &it1,const reverse_iterator<iterator2> &it2)
-{
-    return (it1.it >= it2.it);
-};
-
-template<typename iterator1,typename iterator2>
-bool operator==(const MapIterator<iterator1> &it1,const MapIterator<iterator2> &it2)
+template<typename iterator1, class cmp1, typename iterator2, class cmp2>
+bool operator==(const MapIterator<iterator1,cmp1> &it1,const MapIterator<iterator2,cmp2> &it2)
 {
     return (it1.ptr == it2.ptr);
 };
 
-template<typename iterator1,typename iterator2>
-bool operator!=(const MapIterator<iterator1> &it1,const MapIterator<iterator2> &it2)
+template<typename iterator1, class cmp1, typename iterator2, class cmp2>
+bool operator!=(const MapIterator<iterator1, cmp1> &it1,const MapIterator<iterator2, cmp2> &it2)
 {
     return (it1.ptr != it2.ptr);
 };
