@@ -1,4 +1,4 @@
-#ifndef _RED_BLACK //adding comp // changed new to use allocator instead for nodes
+#ifndef _RED_BLACK //adding comp // changed new to use allocator instead for nodes (+ the use of that comp etc whenever u create a new node) //added size to change inside the insert// added so it would take a reference on a pointer and puts the address of the inserted node in it//change it so it dont change value of key if it already exist
 #define _RED_BLACK
 #include <memory>
 

@@ -114,7 +114,7 @@ struct avl{
     {
         // avl *temp = new avl();
         avl *temp = node_alloc.allocate(1);
-        node_alloc.construct(temp,avl());
+        node_alloc.construct(temp,avl(data,k_comp,v_comp,alloc));
         temp->data = alloc.allocate(1);
         temp->height = 1;
         alloc.construct(temp->data, data);
@@ -126,7 +126,7 @@ struct avl{
     {
         // avl *temp = new avl();
         avl *temp = node_alloc.allocate(1);
-        node_alloc.construct(temp,avl());
+        node_alloc.construct(temp,avl(data,k_comp,v_comp,alloc));
         temp->data = alloc.allocate(1);
         temp->height = 1;
 
@@ -143,26 +143,28 @@ struct avl{
     
 //use balance on each level as it goes up (checks diff between height of right and of left)
 //while tryna insert ++ height of each node passed by?
-    avl *insert_node(T data, size_t &size)//use key compare or value compare here
+    avl *insert_node(T data, size_t &size, avl* & inserted)//use key compare or value compare here
     {
         avl* root = 0;
         avl* temp = 0;
         if(!this->data)// if no data
         {
             put_data(data);
+            inserted = this;
         }
         else if(v_comp(data, *(this->data)))//rest if no nodes it inserts
         {
             if(!left)
             {
                 put_left(data);
+                inserted = left;
                 if(height <= 1)
                     height++;
                 root = balance(data, INSERTION);
             }
             else
             {
-                root = left->insert_node(data);
+                root = left->insert_node(data,inserted);
                 size_t l_height = left->height;
                 size_t r_height = 0;
                 if(right)
@@ -178,13 +180,14 @@ struct avl{
             if(!right)
             {
                 put_right(data);
+                inserted = right;
                 if(height <= 1)
                     height++;
                 root = balance(data, INSERTION);
             }
             else
             {
-                root = right->insert_node(data);
+                root = right->insert_node(data,inserted);
                 size_t r_height = right->height;
                 size_t l_height = 0;
                 if(left)
@@ -199,16 +202,17 @@ struct avl{
         {
             //if same key? change old data
             size--;
-            alloc.destroy(this->data);
-            alloc.construct(this->data, data);
+            inserted = this;
+            // alloc.destroy(this->data);
+            // alloc.construct(this->data, data);
         }
         return root;
     };
 
-    avl* insert(T data, size_t & size)//must be used in the root
+    avl* insert(T data, size_t & size, avl* &inserted)//must be used in the root
     {
         // make it so if(parent doesnt exists then it does otherwise it wont)
-        avl* root = insert_node(data,size);
+        avl* root = insert_node(data,size,inserted);
         if(root)
             return root;
         else

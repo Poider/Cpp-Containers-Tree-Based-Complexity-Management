@@ -11,6 +11,14 @@
 #include "map_iterator.hpp"
 namespace ft {
   
+    //updating min / max values
+        // if(!_min || _v_comp(node,_min))
+        //     _min = node;
+        // if(!_max || _v_comp(_max,node))
+        //     _max = node;
+
+
+
   template<class Key, class T, class Compare = std::less<Key>,
            class Allocator = std::allocator< pair <const Key, T> > >
   class map {
@@ -59,35 +67,53 @@ namespace ft {
     private:
     typedef avl<value_type, key_compare, value_compare, allocator_type> node_type;
     node_type *root;//
-    node_type *max;//make getters for these
-    node_type *min;//
+    node_type *_max;//make getters for these
+    node_type *_min;//
     size_type _size;//
     key_compare _comp;
     value_compare _v_comp;
     allocator_type alloc;
     std::allocator<ft::avl<T, key_compare, value_compare, Allocator> > node_alloc;
     //compare wrapper>> make a pair compare that'll compare keys of the pair
+    node_type *tree_clone(node_type *root)
+    {
+        if (root == nullptr)
+            return nullptr;
+        node_type* new_root = new node_type(root->val);
+        new_root->left = clone_tree(root->left);
+        new_root->right = clone_tree(root->right);
+        return new_root;
+    };
+
+    void burn_tree(node_type *node)
+    {
+        if (node == nullptr) return;
+        print(node->left);
+        print(node->right);
+        node_alloc.destroy(node);
+        node_alloc.deallocate(node,1);
+    }
 
     public:
 //>>>>> member funcs
     map()
     {
         root = NULL;
-        max = NULL;
-        min = NULL;
+        _max = NULL;
+        _min = NULL;
         _size = 0;
     };
 
 
 //when alloc changes and comp or smth, update it in root one, cus it makes the calls, unless youll do a call from another one thats not root then update its things then do the operation
-// make it change vcomps etc on stuff that wont work with the root, otherwise just change it in root
+// make it change vcomps etc on stuff that wont work with the root (thatll be called by another node thats not root), otherwise just change it in root
 //if you copy or smth, make if root then root -> comp alloc change
     explicit map(const Compare &comp,
                  const Allocator &alloc = Allocator())
                  {
                      root = NULL;
-                     max = NULL;
-                     min = NULL;
+                     _max = NULL;
+                     _min = NULL;
                      _size = 0;
                      _comp = comp;
                      _v_comp = value_compare();//I redo it cus if comp change I need it to re declare the comp in that class var
@@ -116,14 +142,15 @@ namespace ft {
             //delete root
         }
     };
-
+    
     map& operator=( const map& other )
     {
         _size = other.size();
         _comp = other._comp;
         alloc = other._alloc;
+        _v_comp = other._v_comp;
         //insert all the other nodes
-        //max / min, when you insert the max and min of other in this, make that address in min max here
+        //_max / _min, when you insert the _max and _min of other in this, make that address in _min _max here
     };
 
     allocator_type get_allocator() const
@@ -134,7 +161,7 @@ namespace ft {
 //>>>>> element access
     T& at( const Key& key )
     {
-        node_type *tmp = root->find_node_key(key)
+        node_type *tmp = root->find_node_key(key);
         if(!tmp)
             throw std::out_of_range("no element with that key found");
         return (*tmp);
@@ -142,28 +169,36 @@ namespace ft {
 
     const T& at( const Key& key ) const
     {
-        node_type *tmp = root->find_node_key(key)
+        node_type *tmp = root->find_node_key(key);
         if(!tmp)
             throw std::out_of_range("no element with that key found");
         return (*tmp);
     };
 
-    T& operator[]( const Key& key );
+    T& operator[]( const Key& key )
     {
-        node_type *tmp = root->find_node_key(key)
+        node_type *tmp = root->find_node_key(key);
         if(!tmp)
-        {
-            tmp = insert(make_pair(k,mapped_type()));
-            //idk what tmp type but basically insert and bring back reference to the second one?
-
-
-        }
-    }
+            return insert(make_pair(key ,mapped_type()))->first->second;
+        return tmp->data->second;
+    };
 //>>>>> iterators
-    iterator begin();
-    const_iterator begin() const;
-    iterator end();
-    const_iterator end() const;
+    iterator begin()
+    {
+        return iterator(_min,_v_comp,&root);
+    };
+    const_iterator begin() const
+    {
+        return const_iterator(_min,_v_comp,&root);
+    };
+    iterator end()
+    {
+        return iterator(nullptr,_v_comp,&root);
+    };
+    const_iterator end() const
+    {
+        return const_iterator(nullptr,_v_comp,&root);
+    };
     reverse_iterator rbegin();
     const_reverse_iterator rbegin() const;
     reverse_iterator rend();
@@ -188,26 +223,55 @@ namespace ft {
 
 
 //>>>>>>> modifiers
-    void clear();
+    void clear()
+    {
+          root->burn_tree();
+    };
 
     std::pair<iterator, bool> insert( const value_type& value )
     {
+        bool is_inserted = true;
         _size++;
+        node_type *node = 0;// returns node inserted here
         if(!root)
         {
             root = node_alloc.allocate(1);
             node_alloc.construct(root, avl(value,_comp,_v_comp,alloc));
+            node = root;
+        }
+        else if(node = root->find_node_key(value->first))
+        {
+            is_inserted = false;
         }
         else
         {
-            root = root.insert(value,_size);
+            root = root.insert(value,_size,node);
         }
-    };
-    iterator insert( iterator hint, const value_type& value );
+        //updating min / max values
+        if(!_min || _v_comp(node,_min))
+            _min = node;
+        if(!_max || _v_comp(_max,node))
+            _max = node;
+            //Returns a pair consisting of an iterator to the inserted element (or to the element that prevented the insertion) and a bool denoting whether the insertion took place.
 
+        return make_pair(iterator(node,_v_comp,&root),is_inserted);
+    };
+
+    iterator insert( iterator hint, const value_type& value )
+    {
+
+    };
+
+//enable if
     template< class InputIt >
         void insert( InputIt first, InputIt last );
-
+    {
+        while(first != last)
+        {
+            insert(*first);
+            first++;
+        }
+    }
     iterator erase( iterator pos );
     iterator erase( iterator first, iterator last );
     size_type erase( const Key& key );

@@ -40,10 +40,13 @@ template <typename map_ptr, class value_compare>
     private :
         value_compare v_comp;
         pointer node_ptr;
+        pointer* root_d_ptr;
         template <class T1, class Allocator1>
            friend class map;
-        MapIterator(pointer node_ptr,value_compare cmp):node_ptr(node_ptr),v_comp(cmp)    // send in comparator too
-        {};
+        MapIterator(pointer node_ptr,value_compare cmp,pointer *root):node_ptr(node_ptr),v_comp(cmp)    // send in comparator too
+        {
+            *root_d_ptr = *root;
+        };
 
         //>>>>>friends
         template <typename it>
@@ -52,6 +55,11 @@ template <typename map_ptr, class value_compare>
             friend class reverse_iterator;
         // template <typename ss>
         //     friend class MapIterator;
+    
+        pointer* root_base() const
+        {
+            return root_d_ptr;
+        };
     public :
         pointer base() const
         {
@@ -63,12 +71,14 @@ template <typename map_ptr, class value_compare>
         template <typename s,class v>
         MapIterator(const MapIterator<s,v> &other) {
             this->node_ptr = other.base();
+            this->root_d_ptr = other.root_base();
         };
 
         template <typename s,class v>
         MapIterator<map_ptr,value_compare>& operator=(const MapIterator<s,v> &other)
         {
             this->node_ptr = other.base();
+            this->root_d_ptr = other.root_base();
             return *this;
         };
         ~MapIterator(){};

@@ -1,0 +1,10 @@
+iterator takes the root so it can get last element
+swap the delete minmax thing before delete
+make it so when it put left or right and make a new one to make it with the root comp etc so it compares it right etc I guess? prolly not cus in recursive it also just uses the root stuff as it calls recursivity, check tho where it goes like node-> smth (that would use the comp)
+
+check if make pair should make const key or will it work if one of the types is const
+
+code the thing where if its null in iterator itll go to the max or smth like that, for it-- from null
+
+what happens if we go it = begin() then it-- then it-- will it go to max?
+what happens also if we it++ from end? should I make it go to lowest if we it++ from null

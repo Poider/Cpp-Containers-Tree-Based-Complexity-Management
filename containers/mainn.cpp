@@ -12,6 +12,12 @@ int main()
 
     std::map<int,int> m;
     m[20] = 13;
+    m[21] = 12;
+    m[22] = 15;
+    m[23] = 16;
+    // auto x = it.operator->();
+    // m.insert(make_pair(20,100));
+    m[20] = 100;
     std::map<int,int>::iterator it = m.begin();
-    auto x = it.operator->();
+    cout << it->first <<  " " << it->second << endl;
 }
