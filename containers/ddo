@@ -8,3 +8,22 @@ code the thing where if its null in iterator itll go to the max or smth like tha
 
 what happens if we go it = begin() then it-- then it-- will it go to max?
 what happens also if we it++ from end? should I make it go to lowest if we it++ from null
+
+
+make sure inserting from a hint doesnt screw up the height updating etc
+or deleting right from a position instead of finding it
+
+test if you delete smth that doesnt exist does it screw it?
+
+
+update min max ptrs when erasing
+
+code whats left thats commented in map
+
+check do I really need to add value compare to Mapiterator
+
+check for when you update _v_comp so that it uses the param constructor
+
+make sure _v_comp(*(node->data),*(_min->data)) is how v_comp works
+
+map syntax fix, added data type to map iterator, added the copy, insert and erase

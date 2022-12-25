@@ -1,6 +1,6 @@
 
-#ifndef _iterator_traits
-#define _iterator_traits
+#ifndef _iterator_traits__
+#define _iterator_traits__
 
 #include <iostream>
 #include <algorithm>

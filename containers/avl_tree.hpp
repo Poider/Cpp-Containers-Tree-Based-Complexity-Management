@@ -1,6 +1,7 @@
 #ifndef _AVL
 #define _AVL
 #include <memory>
+#include <algorithm>
 #define DELETION 0
 #define INSERTION 1
 //change < to key_compare / value_compare
@@ -15,7 +16,7 @@ template <class T,class key_compare = std::less<typename T::first_type>,class va
 struct avl{
     //update height whenever you insert or delete
     typedef typename T::first_type first_type;
-    
+    typedef T data_type;
     std::allocator<ft::avl<T, key_compare, value_compare, Allocator> > node_alloc;
     Allocator alloc;
     value_compare v_comp;
@@ -44,7 +45,7 @@ struct avl{
         right = 0;
     };
 
-    avl(T data, key_compare& k_comp, value_compare& v_comp,Allocator& alloc)
+    avl(T data, key_compare& k_comp, value_compare& v_comp,Allocator& alloc) : v_comp(k_comp)
     {
         this->k_comp = k_comp;
         this->v_comp = v_comp;
@@ -58,7 +59,7 @@ struct avl{
         right = 0;
     };
 
-    avl(const avl& other)
+    avl(const avl& other) : v_comp(other.k_comp)
     {
         alloc = other.alloc;
         if(other.data)
@@ -107,7 +108,6 @@ struct avl{
             alloc.deallocate(data,1);
         }
     };
-
 
 //these put new node at a null node
     void put_left(T data)
@@ -164,7 +164,7 @@ struct avl{
             }
             else
             {
-                root = left->insert_node(data,inserted);
+                root = left->insert_node(data,size,inserted);
                 size_t l_height = left->height;
                 size_t r_height = 0;
                 if(right)
@@ -187,7 +187,7 @@ struct avl{
             }
             else
             {
-                root = right->insert_node(data,inserted);
+                root = right->insert_node(data,size,inserted);
                 size_t r_height = right->height;
                 size_t l_height = 0;
                 if(left)
@@ -219,7 +219,7 @@ struct avl{
             return this;
     }
 
-    avl* balance(T data, bool type)
+    avl* balance(T data_static, bool type)
     {
         avl* root = 0;
         int l_height = 0;
@@ -238,7 +238,7 @@ struct avl{
             return 0;
         
         //where theres unbalance you send 3 nodes to the appropriate rotate
-        
+        T *data = &data_static;
         if(diff < 0)
         {
             
@@ -253,21 +253,21 @@ struct avl{
                 if(right->right)
                     r_height2 = right->right->height;
                 int diff2 = l_height - r_height;
-                data  = (diff2 < 0)? *(right->right->data) : *(right->left->data);
+                data  = (diff2 < 0)? right->right->data : right->left->data;
             }
 
 
 
-            if(v_comp(data, *(right->data)))
+            if(v_comp(*data, *(right->data)))
             {
 
-                std::cout << "RL" << std::endl;
+                // std::cout << "RL" << std::endl;
                 root = right_rotate(this->right);
                 root = left_rotate(this);
             }
             else
             {
-                std::cout << "RR" << std::endl;
+                // std::cout << "RR" << std::endl;
                 root = left_rotate(this);
 
             }
@@ -285,17 +285,17 @@ struct avl{
                 if(left->right)
                     r_height2 = left->right->height;
                 int diff2 = l_height - r_height;
-                data  = (diff2 < 0)? *(left->right->data) : *(left->left->data);
+                data  = (diff2 < 0)? left->right->data : left->left->data;
             }
 
-            if(v_comp(data, *(left->data)))
+            if(v_comp(*data, *(left->data)))
             {
-                std::cout << "LL" << std::endl;
+                // std::cout << "LL" << std::endl;
                 root = right_rotate(this);
             }
             else
             {
-                std::cout << "LR" << std::endl;
+                // std::cout << "LR" << std::endl;
                 root = left_rotate(this->left);
                 root = right_rotate(this);
             }
@@ -566,12 +566,13 @@ avl* find_node_key(first_type key) //use on the root ofc
 
 
 
-avl* find_delete(first_type key) //use on the root ofc
+avl* find_delete(first_type key, int &deleted, avl *_default) //use on the root ofc
 {
     if(data->first == key)
     {
         //(if 0 is returned then the parent is null)
         //if no parent means the tree is empty now?
+        deleted = 1;
         avl* node = delete_node();
         T d;
         if(node)
@@ -587,7 +588,7 @@ avl* find_delete(first_type key) //use on the root ofc
     {
         if(left)
         {
-            avl* node = left->find_delete(key);
+            avl* node = left->find_delete(key,deleted);
 
             //fix height
             size_t l_height = 0;
@@ -604,13 +605,13 @@ avl* find_delete(first_type key) //use on the root ofc
             return(node);
         }
         else
-            return this;
+            return _default;
     }
     else
     {
         if(right)
         {
-            avl* node = right->find_delete(key);
+            avl* node = right->find_delete(key, deleted);
 
             //fix height
             size_t l_height = 0;
@@ -627,13 +628,13 @@ avl* find_delete(first_type key) //use on the root ofc
             return(node);
         }
         else
-            return this;
+            return _default;
     }
 }
 
-avl* delete_(first_type key)// you send the key apparently
+avl* delete_(first_type key, int &deleted)// you send the key apparently
 {
-    avl *root = find_delete(key);
+    avl *root = find_delete(key,deleted,this);
     if(root == 0)
         //tree is empty, return a new root null
         return NULL;
@@ -655,25 +656,25 @@ avl* delete_(first_type key)// you send the key apparently
 
 }
 
-template <class T, class key_compare ,class value_compare ,class Allocator>
-        std::ostream& operator<<(std::ostream& os, const ft::avl<T,value_compare,Allocator>& p)
-        {
-            if(p.data == 0)
-                os << "null data";
-            else
-                os << p.data->first << "/" << p.data->second;
-            return os;
-        }
-template <class T, class key_compare ,class value_compare ,class Allocator>
-        std::ostream& operator<<(std::ostream& os, const ft::avl<T,value_compare,Allocator> *p)
-        {
-            if(p == 0)
-                os << "null";
-            else if(p->data == 0)
-                os << "null data";
-            else
-            os << p->data->first << "/" << p->data->second;
-            return os;
-        }
+// template <class T, class key_compare ,class value_compare ,class Allocator>
+//         std::ostream& operator<<(std::ostream& os, const ft::avl<T,value_compare,Allocator>& p)
+//         {
+//             if(p.data == 0)
+//                 os << "null data";
+//             else
+//                 os << p.data->first << "/" << p.data->second;
+//             return os;
+//         }
+// template <class T, class key_compare ,class value_compare ,class Allocator>
+//         std::ostream& operator<<(std::ostream& os, const ft::avl<T,value_compare,Allocator> *p)
+//         {
+//             if(p == 0)
+//                 os << "null";
+//             else if(p->data == 0)
+//                 os << "null data";
+//             else
+//             os << p->data->first << "/" << p->data->second;
+//             return os;
+//         }
 
 #endif
