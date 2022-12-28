@@ -39,14 +39,13 @@ template <class data_type ,typename map_ptr, class value_compare>
         typedef const  reference          const_reference;
     private :
         iterator_type node_ptr;
-        value_compare v_comp;
-        iterator_type* root_d_ptr;
+        const iterator_type* root_d_ptr;
         template<class Key, class T, class Compare ,
         class Allocator >
             friend class map;
-        MapIterator(iterator_type node_ptr,value_compare cmp,iterator_type *root):node_ptr(node_ptr),v_comp(cmp)    // send in comparator too
+        MapIterator(iterator_type node_ptr,value_compare cmp,const iterator_type *root):node_ptr(node_ptr),root_d_ptr(root)   // send in comparator too
         {
-            root_d_ptr = root;
+            (void) cmp;
         };
 
         //>>>>>friends
@@ -57,12 +56,12 @@ template <class data_type ,typename map_ptr, class value_compare>
         // template <typename ss>
         //     friend class MapIterator;
     
-        pointer* root_base() const
+        const iterator_type* root_base() const
         {
             return root_d_ptr;
         };
     public :
-        pointer base() const
+        iterator_type base() const
         {
             return node_ptr;
         };

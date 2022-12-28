@@ -1,6 +1,8 @@
 #ifndef _AVL
 #define _AVL
 #include <memory>
+#include <iostream>
+
 #include <algorithm>
 #define DELETION 0
 #define INSERTION 1
@@ -15,19 +17,23 @@ namespace ft{
 template <class T,class key_compare = std::less<typename T::first_type>,class value_compare = std::less<T> ,class Allocator = std::allocator<T> >
 struct avl{
     //update height whenever you insert or delete
+    // typedef typename Allocator::template rebind<ft::avl<T, key_compare, value_compare, Allocator> >::other node_alloc_type;
+    typedef typename Allocator::template rebind<ft::avl<T, key_compare, value_compare, Allocator> >::other node_alloc_type;
+
     typedef typename T::first_type first_type;
     typedef T data_type;
-    std::allocator<ft::avl<T, key_compare, value_compare, Allocator> > node_alloc;
+    node_alloc_type node_alloc;
     Allocator alloc;
-    value_compare v_comp;
     key_compare k_comp;
+    value_compare v_comp;
     T    *data;
     size_t height;
     avl *parent;
     avl *left;
     avl *right;
 
-    avl(){
+    avl() : v_comp(key_compare())
+    {
         data = 0;
         height = 0;
         parent = 0;
@@ -35,7 +41,7 @@ struct avl{
         right = 0;
     };
 
-    avl(T data)
+    avl(const T& data) : v_comp(key_compare())
     {
         this->data = alloc.allocate(1);
         alloc.construct(this->data, data);
@@ -45,7 +51,7 @@ struct avl{
         right = 0;
     };
 
-    avl(T data, key_compare& k_comp, value_compare& v_comp,Allocator& alloc) : v_comp(k_comp)
+    avl(const T& data, key_compare& k_comp, value_compare& v_comp,Allocator& alloc) : v_comp(k_comp)
     {
         this->k_comp = k_comp;
         this->v_comp = v_comp;
@@ -67,6 +73,8 @@ struct avl{
             this->data = alloc.allocate(1);
             alloc.construct(this->data, *(other.data));
         }
+        // std::cout << data << std::endl;
+
         alloc = other.alloc;
         v_comp = other.v_comp;
         k_comp = other.k_comp;
@@ -94,45 +102,74 @@ struct avl{
         return *this;
     };
 
-    void burn_tree()
-    {
-        //only if theres parent free (so you dont delete root node cus its on stack)
-        //recursive? each node, send delete right and left?
-        // or delete with a traversal algorithm
-    };
 
     ~avl() {
         if(data)
         {
+        // std::cout << node->data->first << std::endl;
+
             alloc.destroy(data);
             alloc.deallocate(data,1);
         }
     };
+    
+    void swap_addresses(avl*  node1, avl* node2) {
+        (void)(node1);
+        (void)(node2);
+        //save in tmp
+        // T    *tmp_data = node1->data;
+        // size_t tmp_height = node1->height;
+        // avl *tmp_parent = node1->parent;
+        // avl *tmp_left = node1->left;
+        // avl *tmp_right = node1->right;
 
+        // avl *parent1 = node1->parent;
+        // avl *parent2 = node2->parent;
+        // //making their parents points to the correct nodes
+        // if(parent1)
+        //     (parent1->left == node1) ? parent1->left = node2 : parent1->right = node2;
+        // if(parent2)
+        //     (parent2->left == node2) ? parent2->left = node1 : parent2->right = node1;
+        
+        // avl* first_child1 = node1->right;
+        // avl* first_child2 = node1->left;
+        // avl* second_child1 = node2->right;
+        // avl* second_child2 = node2->left;
+
+
+
+        // node1->data = node2->data;
+        // node1->height = node2->height;
+        // node1->parent = node2->parent;
+        // node1->left = node2->left;
+        // node1->right = node2->right;
+
+        // node2->data = tmp_data;
+        // node2->height = tmp_height;
+        // node2->parent = tmp_parent;
+        // node2->left = tmp_left;
+        // node2->right = tmp_right;
+    };
 //these put new node at a null node
     void put_left(T data)
     {
-        // avl *temp = new avl();
-        avl *temp = node_alloc.allocate(1);
-        node_alloc.construct(temp,avl(data,k_comp,v_comp,alloc));
-        temp->data = alloc.allocate(1);
-        temp->height = 1;
-        alloc.construct(temp->data, data);
-        temp->parent = this;
-        left = temp;
+        left = node_alloc.allocate(1);
+        node_alloc.construct(left,avl(data,k_comp,v_comp,alloc));
+        left->height = 1;
+        left->parent = this;
     };
     
     void put_right(T data)
     {
-        // avl *temp = new avl();
-        avl *temp = node_alloc.allocate(1);
-        node_alloc.construct(temp,avl(data,k_comp,v_comp,alloc));
-        temp->data = alloc.allocate(1);
-        temp->height = 1;
+        right = node_alloc.allocate(1);
+        node_alloc.construct(right, avl(data,k_comp,v_comp,alloc));
 
-        alloc.construct(temp->data, data);
-        temp->parent = this;
-        right = temp;
+        right->height = 1;
+
+        right->parent = this;
+
+        // std::cout << this->data << std::endl;
+
     };
 
     T* node_data()
@@ -504,6 +541,7 @@ avl* delete_node()
         alloc.destroy(this->data);
         alloc.construct(this->data, *(min_max->data));
         // then delete that node //send it to this delete_node
+        swap_addresses(this,min_max);
         min_max = min_max->delete_node();
         min_max->fix_height_till(this);
     }
@@ -566,12 +604,13 @@ avl* find_node_key(first_type key) //use on the root ofc
 
 
 
-avl* find_delete(first_type key, int &deleted, avl *_default) //use on the root ofc
+avl* find_delete(const first_type key, size_t &deleted, avl *_default) //use on the root ofc
 {
     if(data->first == key)
     {
         //(if 0 is returned then the parent is null)
         //if no parent means the tree is empty now?
+            // std::cout << "here22" << std::endl;
         deleted = 1;
         avl* node = delete_node();
         T d;
@@ -588,7 +627,7 @@ avl* find_delete(first_type key, int &deleted, avl *_default) //use on the root 
     {
         if(left)
         {
-            avl* node = left->find_delete(key,deleted);
+            avl* node = left->find_delete(key,deleted,_default);
 
             //fix height
             size_t l_height = 0;
@@ -611,7 +650,7 @@ avl* find_delete(first_type key, int &deleted, avl *_default) //use on the root 
     {
         if(right)
         {
-            avl* node = right->find_delete(key, deleted);
+            avl* node = right->find_delete(key, deleted,_default);
 
             //fix height
             size_t l_height = 0;
@@ -632,7 +671,7 @@ avl* find_delete(first_type key, int &deleted, avl *_default) //use on the root 
     }
 }
 
-avl* delete_(first_type key, int &deleted)// you send the key apparently
+avl* delete_(const first_type key, size_t &deleted)// you send the key apparently
 {
     avl *root = find_delete(key,deleted,this);
     if(root == 0)

@@ -13,14 +13,23 @@ using namespace ft;
 
 template<class T>
 struct k_comp{
+    k_comp()
+    {};
     bool operator()(const T &a, const T &b) const {
-        return std::less(a.b);
+        return a < b;
     }
 };
 template<class T>
 struct v_comp{
+    protected:
+    std::less<typename T::first_type>  c;
+    v_comp(std::less<typename T::first_type> &ca) : c(ca)
+    {
+
+    };
+    public: 
     bool operator()(const T &a, const T &b) const {
-        k_comp <typename T::first_type>c;
+        
         return c(a.first, b.first);
     }
 };
@@ -44,20 +53,20 @@ void print_tree_X(const avl<T>* root, int indent=0) {
 
 
 template<class T>
-void printTree(avl<T,k_comp<typename T::first_type>,v_comp<T> >* root) {
+void printTree(avl<T,std::less<int>,v_comp<pair<int,std::string> > >* root) {
     if (root == NULL) {
         return;
     }
 
-    std::queue<avl<T,k_comp<typename T::first_type>,v_comp<T> >*> q;
+    std::queue<avl<T,std::less<int>,v_comp<pair<int,std::string> > > *> q;
     q.push(root);
 
     while (!q.empty()) {
         int size = q.size();
-        std::vector<avl<T,k_comp<typename T::first_type>,v_comp<T> > *> level;
+        std::vector<avl<T,std::less<int>,v_comp<pair<int,std::string> > > *> level;
 
         for (int i = 0; i < size; i++) {
-            avl<T,k_comp<typename T::first_type>,v_comp<T> >* node = q.front();
+            avl<T,std::less<int>,v_comp<pair<int,std::string> > >* node = q.front();
             q.pop();
             level.push_back(node);
 
@@ -109,7 +118,7 @@ void printTree(avl<T,k_comp<typename T::first_type>,v_comp<T> >* root) {
 int main()
 {
     {
-        avl< pair<int,std::string> ,k_comp<int>,v_comp<pair<int,std::string> > > *root = new avl< pair<int,std::string> ,k_comp<int>,v_comp<pair<int,std::string> > > ();
+        avl< pair<int,std::string> ,std::less<int>,v_comp<pair<int,std::string> > > *root = new avl< pair<int,std::string> ,std::less<int>,v_comp<pair<int,std::string> > > ();
         // root.put_data(make_pair(0,"root"));
         // root.put_left(make_pair(1,"lol"));
         // root.put_right(make_pair(2,"lel"));
@@ -118,19 +127,21 @@ int main()
         // avl< pair<int,std::string> ,int,int > node;
         // node = root;
         // std::cout << node.left << std::endl;
+        avl< pair<int,std::string> ,std::less<int>,v_comp<pair<int,std::string> > > *node;
+        size_t size = 0;
 
-        root = root->insert(make_pair(10,"rooty"));
-        root = root->insert(make_pair(18,"rooty"));
-        root = root->insert(make_pair(7,"rooty"));
-        root = root->insert(make_pair(15,"rooty"));
-        root = root->insert(make_pair(16,"rooty"));
-        root = root->insert(make_pair(30,"rooty"));
-        root = root->insert(make_pair(25,"rooty"));
-        root = root->insert(make_pair(40,"rooty"));
-        root = root->insert(make_pair(60,"rooty"));
-        root = root->insert(make_pair(2,"rooty"));
-        root = root->insert(make_pair(1,"rooty"));
-        root = root->insert(make_pair(70,"rooty"));
+        root = root->insert(make_pair(10,"rooty"),size,node);
+        root = root->insert(make_pair(18,"rooty"),size,node);
+        root = root->insert(make_pair(7,"rooty"),size,node);
+        root = root->insert(make_pair(15,"rooty"),size,node);
+        root = root->insert(make_pair(16,"rooty"),size,node);
+        root = root->insert(make_pair(30,"rooty"),size,node);
+        root = root->insert(make_pair(25,"rooty"),size,node);
+        root = root->insert(make_pair(40,"rooty"),size,node);
+        root = root->insert(make_pair(60,"rooty"),size,node);
+        root = root->insert(make_pair(2,"rooty"),size,node);
+        root = root->insert(make_pair(1,"rooty"),size,node);
+        root = root->insert(make_pair(70,"rooty"),size,node);
         // root = root->insert(make_pair(11,"rooty"));
         // root = root->insert(make_pair(17,"rooty"));
         // root = root->insert(make_pair(22,"rooty"));
@@ -143,8 +154,8 @@ int main()
         // root = root->insert(make_pair(9,"rooty"));
         // root = root->insert(make_pair(19,"rooty"));
 
-        root = root->delete_(15);
-        root = root->delete_(18);
+        // root = root->delete_(15);
+        // root = root->delete_(18);
         printTree(root);
         // std::cout << root->find_node_key(13)->parent<< std::endl;
         // print(root);

@@ -26,4 +26,23 @@ check for when you update _v_comp so that it uses the param constructor
 
 make sure _v_comp(*(node->data),*(_min->data)) is how v_comp works
 
-map syntax fix, added data type to map iterator, added the copy, insert and erase
+c9a9ab7 commit where avl struct changed
+
+track if Im using const key value
+
+will your map work with std? maybe remove ft pair typedef in it and let it take the namespace it wants
+
+rebind?
+instead of sending root, you can send min and max double ptrs
+
+size-- on erase
+
+enable if now
+
+revise how it works? is it typed (typename std::enable_if<!std::is_integral< InputIt >::value,InputIt >::type* = nullptr)
+
+remove cmp from iterator constructor
+
+try to use avl tree alone
+
+update min and max in erase now then try the mainn

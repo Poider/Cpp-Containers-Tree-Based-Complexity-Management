@@ -10,9 +10,19 @@ int main()
 
     // bool t = std::is_same<a,b>::value;
     // std::cout << t << std::endl;
+{
+    ft::map<std::string,std::string> m;
+    m["h"] = "a";
+    m["s"] = "b";
+    // m.erase("s");
+    // ft::map<std::string,std::string> st(m);
+    // std::string s = st.at("s");
+    // std::cout << s << std::endl;
+    // ft::map<int,int> v;
 
-    ft::map<int,int> m;
-    m.insert(ft::make_pair(1,1));
+    // m.insert(ft::make_pair("h","a"));
+    // m.insert(ft::make_pair("s","b"));
+
     // m[20] = 13;
     // m[21] = 12;
     // m[22] = 15;
@@ -20,9 +30,20 @@ int main()
     // auto x = it.operator->();
     // m.insert(make_pair(20,100));
     // m[20] = 100;
-    ft::map<int,int>::iterator it = m.end();
+    ft::map<std::string,std::string>::const_iterator it = m.begin();
     // it--;
-    it--;
-    
-    cout << it->first <<  " " << it->second << endl;
+    // it--;
+    // v = m;
+    // it = v.end();
+    // it --;
+    // cout << (m.begin()->first) << std::endl;
+    // cout << m.begin()->first <<  " " << m.begin()->second << endl;
+    while(it != m.end())
+    {
+        std::cout << it->first << " " << it->second << std::endl;
+        it++;
+    }
+}
+
+// system("leaks a.out");
 }

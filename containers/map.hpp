@@ -62,7 +62,7 @@ namespace ft{
     };
     
     typedef MapIterator<value_type ,avl<value_type, key_compare, value_compare, allocator_type>*, value_compare>      iterator;//LegacyBidirectionalIterator to value_type
-    typedef MapIterator<value_type ,const avl<value_type, key_compare, value_compare, allocator_type>*, value_compare>                   const_iterator;//LegacyBidirectionalIterator to const value_type
+    typedef MapIterator<const value_type , avl<value_type, key_compare, value_compare, allocator_type>*, value_compare>                   const_iterator;//LegacyBidirectionalIterator to const value_type
     typedef ft::reverse_iterator<iterator>          reverse_iterator;//	std::reverse_iterator<iterator>
     typedef ft::reverse_iterator<const_iterator>    const_reverse_iterator;//std::reverse_iterator<const_iterator>
 
@@ -70,24 +70,66 @@ namespace ft{
 
     private:
     typedef avl<value_type, key_compare, value_compare, allocator_type> node_type;
-    node_type *root;//
+    typedef typename Allocator ::template rebind<ft::avl<value_type, key_compare, value_compare, Allocator> >::other node_alloc_type;
+
+    
+    mutable node_type *root;//
     node_type *_max;//make getters for these
     node_type *_min;//
     size_type _size;//
     key_compare _comp;
     value_compare _v_comp;
     allocator_type alloc;
-    std::allocator<ft::avl<value_type, key_compare, value_compare, Allocator> > node_alloc;
+    node_alloc_type node_alloc;
     //compare wrapper>> make a pair compare that'll compare keys of the pair
-    node_type *tree_clone(const node_type *root) const
+
+
+            //>>>tree clone using reference
+    // void tree_clone(const node_type *& root,const node_type *& copy, node_alloc_type& node_alloc, key_compare &_comp, value_compare _v_comp, allocator_type alloc) const
+    // {
+    //     if (!root)
+    //     {
+    //         copy = 0;
+    //         return;
+    //     }
+
+    //     // Allocate a new node using the provided node allocator
+    //     node_type* new_node = node_alloc.allocate(1);
+
+    //     // Construct the new node by copying the values from the original node
+    //     node_alloc.construct(new_node, *root);
+
+    //     // Recursively clone the left and right subtrees
+    //     tree_clone_on_go(root->left, new_node->left, node_alloc, _comp, _v_comp, alloc);
+    //     tree_clone_on_go(root->right, new_node->right, node_alloc, _comp, _v_comp, alloc);
+
+    //     // Set the copy pointer to point to the new node
+    //     copy = new_node;
+    // };
+
+
+    node_type *tree_clone_on_go(const node_type *root, node_alloc_type& node_alloc, key_compare &_comp, value_compare _v_comp, allocator_type alloc) const
     {
+        //make it so last new root makes parent NULL of root
         if (root == nullptr)
             return nullptr;
-        node_type *new_root = this->node_alloc.allocate(1);
-        this->node_alloc.construct(new_root, node_type(root->value,_comp,_v_comp,alloc));
-        new_root->left = clone_tree(root->left);
-        new_root->right = clone_tree(root->right);
+        node_type *new_root = node_alloc.allocate(1);
+        node_alloc.construct(new_root, node_type(*(root->data),_comp,_v_comp,alloc));
+        
+        new_root->left = tree_clone_on_go(root->left, node_alloc, _comp, _v_comp, alloc);
+        if(new_root->left)
+            new_root->left->parent = new_root;
+        new_root->right = tree_clone_on_go(root->right, node_alloc, _comp, _v_comp, alloc);//parents
+        if(new_root->right)
+            new_root->right->parent = new_root;
         return new_root;
+    };
+
+    node_type *tree_clone(const node_type *root, node_alloc_type& node_alloc, key_compare &_comp, value_compare _v_comp, allocator_type alloc) const
+    {
+       node_type *new_root = tree_clone_on_go(root,node_alloc,_comp,_v_comp,alloc);
+       new_root->parent = 0;
+       return new_root;
     };
 
     void burn_tree(node_type *node)
@@ -95,6 +137,9 @@ namespace ft{
         if (node == nullptr) return;
         burn_tree(node->left);
         burn_tree(node->right);
+        // alloc.destroy(node->data);
+        // alloc.deallocate(node->data,1);
+        // std::cout << node->data->first << std::endl;
         node_alloc.destroy(node);
         node_alloc.deallocate(node,1);
     }
@@ -128,7 +173,7 @@ namespace ft{
     template <class InputIt>
         map(InputIt first, InputIt last,
                 const Compare &comp = Compare(),
-                const Allocator &alloc = Allocator()) : _v_comp(_comp)
+                const Allocator &alloc = Allocator(), typename std::enable_if<!std::is_integral< InputIt >::value,InputIt >::type* = nullptr) : _v_comp(_comp)
                 {
                     root = NULL;
                     _max = NULL;
@@ -143,26 +188,36 @@ namespace ft{
                 };
     map(const map &other): _v_comp(_comp)
     {
+        _size = 0;
         *this = other;
     };
 
     ~map(){
+        // std::cout << "here1" << std::endl;
         clear();
     };
     
     map& operator=( const map& other )
     {
+        clear();
         _size = other.size();
         _comp = other._comp;
         alloc = other.alloc;
-        _v_comp = other._v_comp;
-        root = other.tree_clone(other.root);
-        _min = root;
-        while(_min->left)
-            _min = _min->left;
-        while(_max->right)
-            _max = _max->right;
         
+        _min = 0;
+        _max = 0;
+        root = 0;
+        _v_comp = other._v_comp;
+        if(_size)
+        {
+            root = other.tree_clone(other.root, node_alloc, _comp, _v_comp, alloc);
+            _min = root;
+            while(_min->left)
+                _min = _min->left;
+            _max = root;
+            while(_max->right)
+                _max = _max->right;
+        }
         return *this;
     };
 
@@ -174,25 +229,31 @@ namespace ft{
 //>>>>> element access
     T& at( const Key& key )
     {
-        node_type *tmp = root->find_node_key(key);
-        if(!tmp)
+        node_type *tmp = 0;
+        if(root)
+            tmp = root->find_node_key(key);
+        if(!tmp || !root)
             throw std::out_of_range("no element with that key found");
-        return (*tmp);
+        return (tmp->data->second);
     };
 
     const T& at( const Key& key ) const
     {
-        node_type *tmp = root->find_node_key(key);
-        if(!tmp)
+        node_type *tmp = 0;
+        if(root)
+            tmp = root->find_node_key(key);
+        if(!tmp || !root)
             throw std::out_of_range("no element with that key found");
-        return (*tmp);
+        return (tmp->data->second);
     };
 
     T& operator[]( const Key& key )
     {
-        node_type *tmp = root->find_node_key(key);
+        node_type *tmp = 0;
+        if(root)
+            tmp = root->find_node_key(key);
         if(!tmp)
-            return insert(make_pair(key ,mapped_type())).first->second;
+            return insert(ft::make_pair(key ,mapped_type())).first->second;
         return tmp->data->second;
     };
 //>>>>> iterators
@@ -238,12 +299,19 @@ namespace ft{
 //>>>>>>> modifiers
     void clear()
     {
-          root->burn_tree();
+        if(_size == 0)
+            return;
+        burn_tree(root);
+        root = 0;
+        _min = 0;
+        _max = 0;
+        _size = 0;
     };
 
     ft::pair<iterator, bool> insert( const value_type& value )
     {
         bool is_inserted = true;
+        size_type save = _size;
         _size++;
         node_type *node = 0;// returns node inserted here
         if(!root)
@@ -252,21 +320,17 @@ namespace ft{
             node_alloc.construct(root, node_type(value,_comp,_v_comp,alloc));
             node = root;
         }
-        else if((node = root->find_node_key(value.first)))
-        {
-            is_inserted = false;
-        }
         else
-        {
             root = root->insert(value,_size,node);
-        }
+        //if size got decremented > not inserted
+        if(save == _size)
+            is_inserted = false;
         //updating min / max values
         if(!_min || _v_comp(*(node->data),*(_min->data)))
             _min = node;
         if(!_max || _v_comp(*(_max->data),*(node->data)))
             _max = node;
             //Returns a pair consisting of an iterator to the inserted element (or to the element that prevented the insertion) and a bool denoting whether the insertion took place.
-
         return ft::make_pair(iterator(node,_v_comp,&root),is_inserted);
     };
 
@@ -278,7 +342,7 @@ namespace ft{
 
 //enable if
     template< class InputIt >
-        void insert( InputIt first, InputIt last )
+        void insert( InputIt first, InputIt last ,typename std::enable_if<!std::is_integral< InputIt >::value,InputIt >::type* = nullptr)
     {
         while(first != last)
         {
@@ -301,7 +365,13 @@ namespace ft{
     size_type erase( const Key& key )
     {
         size_type deleted = 0;
-        root = root->delete_key(key);
+        if(_size > 0)
+        {
+            root = root->delete_(key,deleted);
+            if(deleted)
+                _size--;
+            //update min/max // if noth else exists put null in em?
+        }
         return deleted;
     };
     void swap( map& other );
