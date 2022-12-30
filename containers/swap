@@ -1,0 +1,39 @@
+  void setNode(avl* node1 , avl* node2)
+    {
+        node1->left = node2->left;
+        node1->right = node2->right;
+        node1->parent = node2->parent;
+        node1->height = node2->height;
+        if (node2 ->left != NULL)
+            node2 ->left->parent = node1;
+        if (node2 ->right != NULL)
+            node2 ->right->parent = node1;
+    }
+
+   void swap_addresses(avl* node1, avl* node2) 
+   {
+        avl tmp;
+        tmp.left = node1->left;
+        tmp.right = node1->right;
+        tmp.parent = node1->parent;
+        tmp.height = node1->height;
+        if (node2->parent->left == node2)
+            node2->parent->left = node1;
+        else
+            node2->parent->right = node1;
+        setNode(node1, node2);
+        if (tmp.parent == NULL)
+        {}
+        else if (tmp.parent->left == node1)
+            tmp.parent->left = node2;
+        else
+            tmp.parent->right = node2;
+        setNode(node2, &tmp);
+        if (node1 ->parent == node1)
+        {
+            node1 ->parent = node2;
+            node2 ->right = node1;
+            node2->parent = tmp.parent;
+        }
+   
+    }

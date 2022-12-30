@@ -113,43 +113,45 @@ struct avl{
         }
     };
     
-    void swap_addresses(avl*  node1, avl* node2) {
-        (void)(node1);
-        (void)(node2);
-        //save in tmp
-        // T    *tmp_data = node1->data;
-        // size_t tmp_height = node1->height;
-        // avl *tmp_parent = node1->parent;
-        // avl *tmp_left = node1->left;
-        // avl *tmp_right = node1->right;
+      void setNode(avl* node1 , avl* node2)
+    {
+        node1->left = node2->left;
+        node1->right = node2->right;
+        node1->parent = node2->parent;
+        node1->height = node2->height;
+        if (node2 ->left != NULL)
+            node2 ->left->parent = node1;
+        if (node2 ->right != NULL)
+            node2 ->right->parent = node1;
+    }
 
-        // avl *parent1 = node1->parent;
-        // avl *parent2 = node2->parent;
-        // //making their parents points to the correct nodes
-        // if(parent1)
-        //     (parent1->left == node1) ? parent1->left = node2 : parent1->right = node2;
-        // if(parent2)
-        //     (parent2->left == node2) ? parent2->left = node1 : parent2->right = node1;
-        
-        // avl* first_child1 = node1->right;
-        // avl* first_child2 = node1->left;
-        // avl* second_child1 = node2->right;
-        // avl* second_child2 = node2->left;
-
-
-
-        // node1->data = node2->data;
-        // node1->height = node2->height;
-        // node1->parent = node2->parent;
-        // node1->left = node2->left;
-        // node1->right = node2->right;
-
-        // node2->data = tmp_data;
-        // node2->height = tmp_height;
-        // node2->parent = tmp_parent;
-        // node2->left = tmp_left;
-        // node2->right = tmp_right;
-    };
+   void swap_addresses(avl* node1, avl* node2) 
+   {
+        avl tmp;
+        tmp.left = node1->left;
+        tmp.right = node1->right;
+        tmp.parent = node1->parent;
+        tmp.height = node1->height;
+        if (node2->parent->left == node2)
+            node2->parent->left = node1;
+        else
+            node2->parent->right = node1;
+        setNode(node1, node2);
+        if (tmp.parent == NULL)
+        {}
+        else if (tmp.parent->left == node1)
+            tmp.parent->left = node2;
+        else
+            tmp.parent->right = node2;
+        setNode(node2, &tmp);
+        if (node1 ->parent == node1)
+        {
+            node1 ->parent = node2;
+            node2 ->right = node1;
+            node2->parent = tmp.parent;
+        }
+   
+    }
 //these put new node at a null node
     void put_left(T data)
     {
@@ -289,7 +291,7 @@ struct avl{
                     l_height2 = right->left->height;
                 if(right->right)
                     r_height2 = right->right->height;
-                int diff2 = l_height - r_height;
+                int diff2 = l_height2 - r_height2;
                 data  = (diff2 < 0)? right->right->data : right->left->data;
             }
 
@@ -321,7 +323,7 @@ struct avl{
                     l_height2 = left->left->height;
                 if(left->right)
                     r_height2 = left->right->height;
-                int diff2 = l_height - r_height;
+                int diff2 = l_height2 - r_height2;
                 data  = (diff2 < 0)? left->right->data : left->left->data;
             }
 
@@ -521,7 +523,7 @@ avl* delete_node()
         //two children
         //maybe do the opposite and take from the highest to maybe not do rotations
         avl* min_max;
-        if(left->height > right->height)
+        // if(left->height > right->height)
         {
             //get min right put it in its place
             avl* min = right;
@@ -529,21 +531,22 @@ avl* delete_node()
                 min = min->left;
             min_max = min;
         }
-        else{
-            //get max left put it in its place
-            avl* max = left;
-            while(max->right)
-                max = max->right;
-            min_max = max;
-        }
+        // else{
+        //     //get max left put it in its place
+        //     avl* max = left;
+        //     while(max->right)
+        //         max = max->right;
+        //     min_max = max;
+        // }
         
         ret_node = min_max->parent; // from where balance
-        alloc.destroy(this->data);
-        alloc.construct(this->data, *(min_max->data));
+        // alloc.destroy(this->data);
+        // alloc.construct(this->data, *(min_max->data));
         // then delete that node //send it to this delete_node
-        swap_addresses(this,min_max);
-        min_max = min_max->delete_node();
-        min_max->fix_height_till(this);
+        avl *dis = this;
+        swap_addresses(dis,min_max);
+        dis = dis->delete_node();
+        dis->fix_height_till(min_max);
     }
 
     else if(!left && !right)

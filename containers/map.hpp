@@ -137,9 +137,7 @@ namespace ft{
         if (node == nullptr) return;
         burn_tree(node->left);
         burn_tree(node->right);
-        // alloc.destroy(node->data);
-        // alloc.deallocate(node->data,1);
-        // std::cout << node->data->first << std::endl;
+        
         node_alloc.destroy(node);
         node_alloc.deallocate(node,1);
     }
@@ -358,8 +356,9 @@ namespace ft{
     {
         while(first != last)
         {
+            iterator tmp = ++first;
             erase(first->first);
-            first++;
+            first = tmp;
         }
     };
     size_type erase( const Key& key )
@@ -367,10 +366,36 @@ namespace ft{
         size_type deleted = 0;
         if(_size > 0)
         {
+            
+            iterator tmp1(_min,_v_comp,&root);
+            iterator tmp2(_max,_v_comp,&root);
+            
+            if(_min->data->first == key)
+                tmp1++;
+            if(_max->data->first == key)
+                tmp2--;
+
             root = root->delete_(key,deleted);
+            
             if(deleted)
+            {
                 _size--;
-            //update min/max // if noth else exists put null in em?
+                // _min = tmp1.base();
+                // _max = tmp2.base();
+                _min = root;
+                if(_min)
+                {
+                    while(_min->left)
+                        _min = _min->left;
+                }
+                _max = root;
+                if(_max)
+                {
+                    while(_max->right)
+                        _max = _max->right;
+                }
+            }
+            
         }
         return deleted;
     };
@@ -378,8 +403,24 @@ namespace ft{
 
 //>>>>>> lookup
     size_type count( const Key& key ) const;
-    iterator find( const Key& key );
-    const_iterator find( const Key& key ) const;
+    iterator find( const Key& key )
+    {
+        node_type *tmp = 0;
+        if(root)
+            tmp = root->find_node_key(key);
+        if(!tmp || !root)
+            end();
+        return iterator(tmp,_v_comp,&root);
+    };
+    const_iterator find( const Key& key ) const
+    {
+        node_type *tmp = 0;
+        if(root)
+            tmp = root->find_node_key(key);
+        if(!tmp || !root)
+            end();
+        return const_iterator(tmp,_v_comp,&root);
+    };
     std::pair<iterator,iterator> equal_range( const Key& key );
     std::pair<const_iterator,const_iterator> equal_range( const Key& key ) const;
     iterator lower_bound( const Key& key );
