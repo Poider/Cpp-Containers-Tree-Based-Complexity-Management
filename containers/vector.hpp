@@ -6,7 +6,7 @@
 /*   By: mel-amma <mel-amma@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/11/05 12:49:07 by mel-amma          #+#    #+#             */
-/*   Updated: 2022/12/09 16:17:34 by mel-amma         ###   ########.fr       */
+/*   Updated: 2023/01/01 15:20:04 by mel-amma         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -78,7 +78,7 @@ public:
                             _capacity = count;
                             container = this->alloc.allocate(count);
                             for(size_type i = 0; i < count; i++)
-                                this->alloc.construct(container + i, value);
+                            this->alloc.construct(container + i, value);
                         }
                         else throw std::length_error("Length exception");
                     };
@@ -311,22 +311,28 @@ public:
     };
     reverse_iterator rbegin()
     {
-        reverse_iterator it = reverse_iterator(container + _size);
+        iterator tmp(container + _size);
+        reverse_iterator it = reverse_iterator(tmp);
         return it;
     };
     const_reverse_iterator rbegin() const
     {
-        reverse_iterator it = reverse_iterator(container + _size);
+        const_iterator tmp(container + _size);
+        const_reverse_iterator it = const_reverse_iterator(tmp);
         return it;
     };
     reverse_iterator rend()
     {
-        reverse_iterator it = reverse_iterator(container);
+        iterator tmp(container);
+
+        reverse_iterator it = reverse_iterator(tmp);
         return it;
     };
     const_reverse_iterator rend() const
     {
-        reverse_iterator it = reverse_iterator(container);
+        const_iterator tmp(container);
+
+        const_reverse_iterator it = const_reverse_iterator(tmp);
         return it;
     };
 

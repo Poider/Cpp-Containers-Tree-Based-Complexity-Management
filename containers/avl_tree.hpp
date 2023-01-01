@@ -113,7 +113,7 @@ struct avl{
         }
     };
     
-      void setNode(avl* node1 , avl* node2)
+      void fill_node(avl* node1 , avl* node2)
     {
         node1->left = node2->left;
         node1->right = node2->right;
@@ -136,14 +136,14 @@ struct avl{
             node2->parent->left = node1;
         else
             node2->parent->right = node1;
-        setNode(node1, node2);
+        fill_node(node1, node2);
         if (tmp.parent == NULL)
         {}
         else if (tmp.parent->left == node1)
             tmp.parent->left = node2;
         else
             tmp.parent->right = node2;
-        setNode(node2, &tmp);
+        fill_node(node2, &tmp);
         if (node1 ->parent == node1)
         {
             node1 ->parent = node2;
@@ -692,9 +692,27 @@ avl* delete_(const first_type key, size_t &deleted)// you send the key apparentl
     //return the root sent back, in case root is deleted or smth,
     
 }
+template <class TX,class key_compareX ,class value_compareX,class AllocatorX>
+    friend bool operator==(avl<TX, key_compareX, value_compareX,AllocatorX > &a, avl<TX, key_compareX, value_compareX,AllocatorX > &b);
 
-
+template <class TX,class key_compareX ,class value_compareX,class AllocatorX>
+    friend bool operator!=(avl<TX, key_compareX, value_compareX,AllocatorX > &a, avl<TX, key_compareX, value_compareX,AllocatorX > &b);
 };
+
+template <class TX,class key_compareX ,class value_compareX,class AllocatorX>
+    bool operator==(avl<TX, key_compareX, value_compareX,AllocatorX > &a, avl<TX, key_compareX, value_compareX,AllocatorX > &b)
+    {
+        if(a.data->first == b.data->first && a.data->second == b.data->second)
+            return true;
+        return false;
+    };
+
+template <class TX,class key_compareX ,class value_compareX,class AllocatorX>
+    bool operator!=(avl<TX, key_compareX, value_compareX,AllocatorX > &a, avl<TX, key_compareX, value_compareX,AllocatorX > &b)
+    {
+        return !(a == b);
+    };
+
 
 }
 

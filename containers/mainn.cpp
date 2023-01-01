@@ -62,21 +62,34 @@ int main()
     // m[20] = 100;
     ft::pair<int, std::string> intstr_arr[64];                                              \
     init_array_int_str(intstr_arr, 64);
-    ft::map<int,std::string> m(intstr_arr, intstr_arr + 25);;
+    ft::map<int,std::string> m(intstr_arr, intstr_arr + 25);
+    ft::map<int,std::string> ss;
     ft::map<int,std::string>::iterator it = m.begin();
-    it = m.begin();
-    for (it = m.begin(); it != m.end(); it = m.begin()) 
-    {
+    it = m.end();
+    it--;
+    if(ss == m)
+        std::cout <<"hi";
+    // ft::map<int,std::string>::reverse_iterator itr = m.rbegin();
+    //  for (itr = m.rbegin(); itr != m.rend(); ++itr) {
+        
+    //        std::cout << itr->first<< std::endl;
+    //     }
+    //     ++itr;
+    // std::cout << itr->first  << std::endl;
+    // std::cout << it->first  << std::endl;
+
+    // for (it = m.begin(); it != m.end(); it = m.begin()) 
+    // {
    
-            m.erase(it);
-        // ft::map<int,std::string>::iterator it1 = m.begin();
-        // while(it1 != m.end())
-        // {
-        //     std::cout << it1->first << " " << it1->second << std::endl;
-        //     it1++;
-        // }
-        // std::cout << " " << std::endl;
-    }
+    //         m.erase(it);
+    //     // ft::map<int,std::string>::iterator it1 = m.begin();
+    //     // while(it1 != m.end())
+    //     // {
+    //     //     std::cout << it1->first << " " << it1->second << std::endl;
+    //     //     it1++;
+    //     // }
+    //     // std::cout << " " << std::endl;
+    // }
     // it--;
     // it--;
     // v = m;
@@ -90,6 +103,8 @@ int main()
     //     std::cout << it->first << " " << it->second << std::endl;
     //     it++;
     // }
+
+
 }
 
 // system("leaks a.out");
