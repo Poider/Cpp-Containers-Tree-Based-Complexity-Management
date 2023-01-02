@@ -6,7 +6,7 @@
 /*   By: mel-amma <mel-amma@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/01/01 18:27:56 by mel-amma          #+#    #+#             */
-/*   Updated: 2023/01/01 18:41:50 by mel-amma         ###   ########.fr       */
+/*   Updated: 2023/01/02 13:41:37 by mel-amma         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -66,14 +66,14 @@ template <class data_type ,typename set_ptr>
         //default constructible only from forward iterator and ahead
         setIterator(){};
 
-        template <class v_type,typename s,class v>
-        setIterator(const setIterator<v_type,s,v> &other) {
+        template <class v_type,typename s>
+        setIterator(const setIterator<v_type,s> &other) {
             this->node_ptr = other.base();
             this->root_d_ptr = other.root_base();
         };
 
-        template <class v_type,typename s,class v>
-        setIterator<data_type,set_ptr>& operator=(const setIterator<v_type,s,v> &other)
+        template <class v_type,typename s>
+        setIterator<data_type,set_ptr>& operator=(const setIterator<v_type,s> &other)
         {
             this->node_ptr = other.base();
             this->root_d_ptr = other.root_base();
@@ -260,11 +260,11 @@ template <class data_type ,typename set_ptr>
             // };
 
         // multipass?
-             template <class v_type1, typename iterator1, class cmp1, class v_type2, typename iterator2, class cmp2>
-            friend bool operator==(const setIterator<v_type1, iterator1, cmp1> &it1, const setIterator<v_type2,iterator2, cmp2> &it2);
+             template <class v_type1, typename iterator1,  class v_type2, typename iterator2>
+            friend bool operator==(const setIterator<v_type1, iterator1> &it1, const setIterator<v_type2,iterator2> &it2);
             
-            template <class v_type1 ,typename iterator1, class cmp1, class v_type2,typename iterator2, class cmp2>
-            friend bool operator!=(const setIterator<v_type1,iterator1, cmp1> &it1, const setIterator<v_type2, iterator2, cmp2> &it2);
+            template <class v_type1 ,typename iterator1, class v_type2,typename iterator2>
+            friend bool operator!=(const setIterator<v_type1,iterator1> &it1, const setIterator<v_type2, iterator2> &it2);
 
             // template <typename iterator1, typename iterator2>
             // friend bool operator>(const setIterator<iterator1> &it1, const setIterator<iterator2> &it2);

@@ -2,6 +2,7 @@
 #include <type_traits>
 // #include <map>
 #include "map.hpp"
+#include <set>
 using namespace std;
     void init_array_int_str(ft::pair<int, std::string>* arr, std::size_t size)
 {
@@ -69,6 +70,12 @@ int main()
     it--;
     if(ss == m)
         std::cout <<"hi";
+
+    std::set<int> a;
+    std::set<int>::iterator itrr;
+    auto x = itrr.operator->();
+    if(a != a)
+    ;
     // ft::map<int,std::string>::reverse_iterator itr = m.rbegin();
     //  for (itr = m.rbegin(); itr != m.rend(); ++itr) {
         

@@ -30,6 +30,7 @@ namespace ft{
     typedef Key                                      key_type;//
     typedef Key                                      value_type;//
     typedef Compare                                  key_compare;//
+    typedef Compare                                  value_compare;//
     typedef Allocator                                allocator_type;//
     typedef typename allocator_type::reference       reference;//value_type&
     typedef typename allocator_type::const_reference const_reference;//const value_type&
@@ -37,8 +38,8 @@ namespace ft{
     typedef typename allocator_type::const_pointer   const_pointer;//Allocator::const_pointer 
     typedef typename allocator_type::size_type       size_type;//std::size_t
     typedef typename allocator_type::difference_type difference_type;//std::ptrdiff_t
-    typedef setIterator<value_type ,rbTree<value_type, key_compare,  allocator_type>*, value_compare>      iterator;//LegacyBidirectionalIterator to value_type
-    typedef setIterator<const value_type , rbTree<value_type, key_compare,  allocator_type>*, value_compare>                   const_iterator;//LegacyBidirectionalIterator to const value_type
+    typedef setIterator<value_type ,rbTree<value_type, key_compare,  allocator_type>*>      iterator;//LegacyBidirectionalIterator to value_type
+    typedef setIterator<const value_type , rbTree<value_type, key_compare,  allocator_type>*>                   const_iterator;//LegacyBidirectionalIterator to const value_type
     typedef ft::reverse_iterator<iterator>          reverse_iterator;//	std::reverse_iterator<iterator>
     typedef ft::reverse_iterator<const_iterator>    const_reverse_iterator;//std::reverse_iterator<const_iterator>
 
@@ -54,32 +55,31 @@ namespace ft{
     node_type *_min;//
     size_type _size;//
     key_compare _comp;
-    value_compare _v_comp;
     allocator_type alloc;
     node_alloc_type node_alloc;
     //compare wrapper>> make a pair compare that'll compare keys of the pair
 
 
-    node_type *tree_clone_on_go(const node_type *root, node_alloc_type& node_alloc, key_compare &_comp, value_compare _v_comp, allocator_type alloc) const
+    node_type *tree_clone_on_go(const node_type *root, node_alloc_type& node_alloc, key_compare &_comp,  allocator_type alloc) const
     {
         //make it so last new root makes parent NULL of root
         if (root == nullptr)
             return nullptr;
         node_type *new_root = node_alloc.allocate(1);
-        node_alloc.construct(new_root, node_type(*(root->data),_comp,_v_comp,alloc));
+        node_alloc.construct(new_root, node_type(*(root->data),_comp,alloc));
         
-        new_root->left = tree_clone_on_go(root->left, node_alloc, _comp, _v_comp, alloc);
+        new_root->left = tree_clone_on_go(root->left, node_alloc, _comp,alloc);
         if(new_root->left)
             new_root->left->parent = new_root;
-        new_root->right = tree_clone_on_go(root->right, node_alloc, _comp, _v_comp, alloc);//parents
+        new_root->right = tree_clone_on_go(root->right, node_alloc, _comp,alloc);//parents
         if(new_root->right)
             new_root->right->parent = new_root;
         return new_root;
     };
 
-    node_type *tree_clone(const node_type *root, node_alloc_type& node_alloc, key_compare &_comp, value_compare _v_comp, allocator_type alloc) const
+    node_type *tree_clone(const node_type *root, node_alloc_type& node_alloc, key_compare &_comp, allocator_type alloc) const
     {
-       node_type *new_root = tree_clone_on_go(root,node_alloc,_comp,_v_comp,alloc);
+       node_type *new_root = tree_clone_on_go(root,node_alloc,_comp,alloc);
        new_root->parent = 0;
        return new_root;
     };
@@ -96,7 +96,7 @@ namespace ft{
 
     public:
 //>>>>> member funcs
-    set(): _v_comp(_comp)
+    set()
     {
         root = NULL;
         _max = NULL;
@@ -109,34 +109,32 @@ namespace ft{
 // make it change vcomps etc on stuff that wont work with the root (thatll be called by another node thats not root), otherwise just change it in root
 //if you copy or smth, make if root then root -> comp alloc change
     explicit set(const Compare &comp,
-                 const Allocator &alloc = Allocator()): _v_comp(_comp)
+                 const Allocator &alloc = Allocator())
                  {
                      root = NULL;
                      _max = NULL;
                      _min = NULL;
                      _size = 0;
                      _comp = comp;
-                     _v_comp = value_compare(_comp);//I redo it cus if comp change I need it to re declare the comp in that class var
                      this->alloc = alloc;
                  };
     //enable_if
     template <class InputIt>
         set(InputIt first, InputIt last,
                 const Compare &comp = Compare(),
-                const Allocator &alloc = Allocator(), typename std::enable_if<!std::is_integral< InputIt >::value,InputIt >::type* = nullptr) : _v_comp(_comp)
+                const Allocator &alloc = Allocator(), typename std::enable_if<!std::is_integral< InputIt >::value,InputIt >::type* = nullptr)
                 {
                     root = NULL;
                     _max = NULL;
                     _min = NULL;
                     _size = 0;
                     _comp = comp;
-                    _v_comp = value_compare(_comp);
                     this->alloc = alloc;
                     insert(first, last);
                     //line 76
                     //insert node by node
                 };
-    set(const set &other): _v_comp(_comp)
+    set(const set &other)
     {
         _size = 0;
         *this = other;
@@ -156,10 +154,9 @@ namespace ft{
         _min = 0;
         _max = 0;
         root = 0;
-        _v_comp = other._v_comp;
         if(_size)
         {
-            root = other.tree_clone(other.root, node_alloc, _comp, _v_comp, alloc);
+            root = other.tree_clone(other.root, node_alloc, _comp, alloc);
             _min = root;
             while(_min->left)
                 _min = _min->left;
@@ -179,38 +176,38 @@ namespace ft{
 //>>>>> iterators
     iterator begin()
     {
-        return iterator(_min,_v_comp,&root);
+        return iterator(_min, &root);
     };
     const_iterator begin() const
     {
-        return const_iterator(_min,_v_comp,&root);
+        return const_iterator(_min, &root);
     };
     iterator end()
     {
-        return iterator(nullptr,_v_comp,&root);
+        return iterator(nullptr, &root);
     };
     const_iterator end() const
     {
-        return const_iterator(nullptr,_v_comp,&root);
+        return const_iterator(nullptr,&root);
     };
     reverse_iterator rbegin()
     {
-        iterator it(nullptr,_v_comp,&root);
+        iterator it(nullptr, &root);
         return reverse_iterator(it);
     };
     const_reverse_iterator rbegin() const
     {
-        const_iterator it(nullptr,_v_comp,&root);
+        const_iterator it(nullptr, &root);
         return const_reverse_iterator(it);
     };
     reverse_iterator rend()
     {
-        iterator it(_min,_v_comp,&root);
+        iterator it(_min, &root);
         return reverse_iterator(it);
     };
     const_reverse_iterator rend() const
     {
-        const_iterator it(_min,_v_comp,&root);
+        const_iterator it(_min, &root);
         return const_reverse_iterator(it);
     };
 
@@ -253,7 +250,7 @@ namespace ft{
         if(!root)
         {
             root = node_alloc.allocate(1);
-            node_alloc.construct(root, node_type(value,_comp,_v_comp,alloc));
+            node_alloc.construct(root, node_type(value,_comp,alloc));
             node = root;
         }
         else
@@ -262,12 +259,12 @@ namespace ft{
         if(save == _size)
             is_inserted = false;
         //updating min / max values
-        if(!_min || _v_comp(*(node->data),*(_min->data)))
+        if(!_min || _comp(*(node->data),*(_min->data)))
             _min = node;
-        if(!_max || _v_comp(*(_max->data),*(node->data)))
+        if(!_max || _comp(*(_max->data),*(node->data)))
             _max = node;
             //Returns a pair consisting of an iterator to the inserted element (or to the element that prevented the insertion) and a bool denoting whether the insertion took place.
-        return ft::make_pair(iterator(node,_v_comp,&root),is_inserted);
+        return ft::make_pair(iterator(node, &root),is_inserted);
     };
 
     iterator insert( iterator hint, const value_type& value )
@@ -288,7 +285,7 @@ namespace ft{
     };
     void erase( iterator pos )
     {
-        erase(pos->first);
+        erase(*pos);
     };
     void erase( iterator first, iterator last )
     {
@@ -296,7 +293,7 @@ namespace ft{
         {
             iterator tmp = first;
             tmp++;
-            erase(first->first);
+            erase(*first);
             first = tmp;
         }
     };
@@ -306,12 +303,12 @@ namespace ft{
         if(_size > 0)
         {
             
-            iterator tmp1(_min,_v_comp,&root);
-            iterator tmp2(_max,_v_comp,&root);
+            iterator tmp1(_min, &root);
+            iterator tmp2(_max, &root);
             
-            if(_min->data->first == key)
+            if(*(_min->data) == key)
                 tmp1++;
-            if(_max->data->first == key)
+            if(*(_max->data) == key)
                 tmp2--;
 
             root = root->delete_(key,deleted);
@@ -334,7 +331,6 @@ namespace ft{
         node_type *_min_tmp = _min;
         size_type _size_tmp = _size;
         key_compare _comp_tmp = _comp;
-        value_compare _v_comp_tmp = _v_comp;
         allocator_type alloc_tmp = alloc;
         node_alloc_type node_alloc_tmp = node_alloc;
 
@@ -343,7 +339,6 @@ namespace ft{
         _min = other._min;
         _size = other._size;
         _comp = other._comp;
-        _v_comp = other._v_comp;
         alloc = other.alloc;
         node_alloc = other.node_alloc;
 
@@ -352,7 +347,6 @@ namespace ft{
         other._min = _min_tmp;
         other._size = _size_tmp;
         other._comp = _comp_tmp;
-        other._v_comp = _v_comp_tmp;
         other.alloc = alloc_tmp;
         other.node_alloc = node_alloc_tmp;
     };
@@ -374,7 +368,7 @@ namespace ft{
             tmp = root->find_node_key(key);
         if(!tmp || !root)
             end();
-        return iterator(tmp,_v_comp,&root);
+        return iterator(tmp, &root);
     };
     const_iterator find( const Key& key ) const
     {
@@ -383,7 +377,7 @@ namespace ft{
             tmp = root->find_node_key(key);
         if(!tmp || !root)
             end();
-        return const_iterator(tmp,_v_comp,&root);
+        return const_iterator(tmp,&root);
     };
     ft::pair<iterator,iterator> equal_range( const Key& key )
     {
@@ -404,10 +398,10 @@ node_type* lower_b(node_type* root, const Key& key) const
     if (!root)
         return nullptr; // meaning none bigger than the key found
 
-    if (root->data->first == key)
+    if (*(root->data) == key)
         return root;
 
-    else if (_comp(key, root->data->first))
+    else if (_comp(key, *(root->data)))
     {
         // check left tree
         node_type* left = lower_b(root->left, key);
@@ -427,7 +421,7 @@ node_type* upper_b(node_type* root, const Key& key) const
    if (!root)
         return nullptr; // meaning none bigger than the key found
 
-   if (_comp(key, root->data->first))
+   if (_comp(key, *(root->data)))
     {
         // check left tree
         node_type* left = upper_b(root->left, key);
@@ -446,7 +440,7 @@ node_type* upper_b(node_type* root, const Key& key) const
     iterator lower_bound( const Key& key )
     {
         node_type* lowerbound = lower_b(root, key);
-        return iterator(lowerbound,_v_comp,&root);
+        return iterator(lowerbound,&root);
     };
 
     
@@ -454,17 +448,17 @@ node_type* upper_b(node_type* root, const Key& key) const
     const_iterator lower_bound( const Key& key ) const
     {
         node_type* lowerbound = lower_b(root, key);
-        return const_iterator(lowerbound,_v_comp,&root);
+        return const_iterator(lowerbound,&root);
     };
     iterator upper_bound( const Key& key )
     {
         node_type* upperbound = upper_b(root, key);
-        return iterator(upperbound,_v_comp,&root);
+        return iterator(upperbound,&root);
     };
     const_iterator upper_bound( const Key& key ) const
     {
         node_type* upperbound = upper_b(root, key);
-        return const_iterator(upperbound,_v_comp,&root);
+        return const_iterator(upperbound,&root);
     };
 
 
@@ -473,44 +467,43 @@ node_type* upper_b(node_type* root, const Key& key) const
     {
         return _comp;
     };
-    ft::set<Key, T, Compare ,
-        Allocator>::value_compare value_comp() const
+    
+    value_compare value_comp() const
     {
-        return _v_comp;
+        return _comp;
     };
 
 
+template <class KeyX, class CompareX,
+              class AllocatorX>
+    friend bool operator==(const set<KeyX, CompareX, AllocatorX> &lhs,
+                    const set<KeyX, CompareX, AllocatorX> &rhs);
+template <class KeyX, class CompareX,
+              class AllocatorX>
+    friend bool operator!=(const set<KeyX, CompareX, AllocatorX> &lhs,
+                    const set<KeyX, CompareX, AllocatorX> &rhs);
+template <class KeyX, class CompareX,
+              class AllocatorX>
+    friend bool operator<(const set<KeyX, CompareX, AllocatorX> &lhs,
+                    const set<KeyX, CompareX, AllocatorX> &rhs);
+template <class KeyX, class CompareX,
+              class AllocatorX>
+    friend bool operator<=(const set<KeyX, CompareX, AllocatorX> &lhs,
+                    const set<KeyX, CompareX, AllocatorX> &rhs);
+template <class KeyX, class CompareX,
+              class AllocatorX>
+    friend bool operator>(const set<KeyX, CompareX, AllocatorX> &lhs,
+                    const set<KeyX, CompareX, AllocatorX> &rhs);
+template <class KeyX, class CompareX,
+              class AllocatorX>
+    friend bool operator>=(const set<KeyX, CompareX, AllocatorX> &lhs,
+                    const set<KeyX, CompareX, AllocatorX> &rhs);
 
-template <class KeyX, class TX, class CompareX,
-              class AllocatorX>
-    friend bool operator==(const set<KeyX, TX, CompareX, AllocatorX> &lhs,
-                    const set<KeyX, TX, CompareX, AllocatorX> &rhs);
-template <class KeyX, class TX, class CompareX,
-              class AllocatorX>
-    friend bool operator!=(const set<KeyX, TX, CompareX, AllocatorX> &lhs,
-                    const set<KeyX, TX, CompareX, AllocatorX> &rhs);
-template <class KeyX, class TX, class CompareX,
-              class AllocatorX>
-    friend bool operator<(const set<KeyX, TX, CompareX, AllocatorX> &lhs,
-                    const set<KeyX, TX, CompareX, AllocatorX> &rhs);
-template <class KeyX, class TX, class CompareX,
-              class AllocatorX>
-    friend bool operator<=(const set<KeyX, TX, CompareX, AllocatorX> &lhs,
-                    const set<KeyX, TX, CompareX, AllocatorX> &rhs);
-template <class KeyX, class TX, class CompareX,
-              class AllocatorX>
-    friend bool operator>(const set<KeyX, TX, CompareX, AllocatorX> &lhs,
-                    const set<KeyX, TX, CompareX, AllocatorX> &rhs);
-template <class KeyX, class TX, class CompareX,
-              class AllocatorX>
-    friend bool operator>=(const set<KeyX, TX, CompareX, AllocatorX> &lhs,
-                    const set<KeyX, TX, CompareX, AllocatorX> &rhs);
 
-
-    template <class KeyX, class TX, class CompareX,
+    template <class KeyX, class CompareX,
               class AllocatorX>
-    void swap(set<KeyX, TX, CompareX, AllocatorX> &lhs,
-                    set<KeyX, TX, CompareX, AllocatorX> &rhs);
+    void swap(set<KeyX, CompareX, AllocatorX> &lhs,
+                    set<KeyX, CompareX, AllocatorX> &rhs);
 
     //end
   };
@@ -537,7 +530,7 @@ template <class KeyX, class TX, class CompareX,
 
                         for( size_t i = 0; i < lhs.size(); i++ )
                         {
-                            if(it1->first != it2->first || it1->second != it2->second)
+                            if(*it1 != *it2)
                                 return false;
                             it1++;
                             it2++;
@@ -546,7 +539,7 @@ template <class KeyX, class TX, class CompareX,
                     };
 
 
-    template <class KeyX, class TX, class CompareX,
+    template <class KeyX, class CompareX,
                   class AllocatorX>
         bool operator!=(const set<KeyX,  CompareX, AllocatorX> &lhs,
                         const set<KeyX,  CompareX, AllocatorX> &rhs)

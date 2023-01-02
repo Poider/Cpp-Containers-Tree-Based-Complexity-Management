@@ -1,7 +1,7 @@
 #ifndef _RED_BLACK //adding comp // changed new to use allocator instead for nodes (+ the use of that comp etc whenever u create a new node) //added size to change inside the insert// added so it would take a reference on a pointer and puts the address of the inserted node in it//change it so it dont change value of key if it already exist//added _default to delete to return if it didnt find// added a "bool" to tell if it deleted or not // : v_comp(key_compare()) added in  constructs by default//put right put left changes//added swap addresses
 #define _RED_BLACK
 #include <memory>
-
+#include <algorithm>
 #define DELETION 0
 #define INSERTION 1
 
@@ -27,6 +27,7 @@ struct rbTree{
     
     
     Allocator alloc;
+    node_alloc_type node_alloc;
     key_compare k_comp;
     bool color;
     T    *data;
@@ -58,7 +59,6 @@ struct rbTree{
     rbTree(const T& data, key_compare& k_comp, Allocator& alloc)
     {
         this->k_comp = k_comp;
-        this->v_comp = v_comp;
         this->alloc = alloc;
         this->data = alloc.allocate(1);
         alloc.construct(this->data, data);
@@ -117,25 +117,29 @@ struct rbTree{
         }
     };
 
-      void fill_node(avl* node1 , avl* node2)
+      void fill_node(rbTree* node1 , rbTree* node2)
     {
         node1->left = node2->left;
         node1->right = node2->right;
         node1->parent = node2->parent;
         node1->height = node2->height;
+        node1->color = node2->color;
+
         if (node2 ->left != NULL)
             node2 ->left->parent = node1;
         if (node2 ->right != NULL)
             node2 ->right->parent = node1;
     }
 
-   void swap_addresses(avl* node1, avl* node2) 
+   void swap_addresses(rbTree* node1, rbTree* node2) 
    {
-        avl tmp;
+        rbTree tmp;
         tmp.left = node1->left;
         tmp.right = node1->right;
         tmp.parent = node1->parent;
         tmp.height = node1->height;
+        tmp.color = node1->color;
+        
         if (node2->parent->left == node2)
             node2->parent->left = node1;
         else
@@ -158,21 +162,21 @@ struct rbTree{
     }
 
 //these put new node at a null node
-    void put_left(T data)
+    void put_right(T data)
     {   
         right = node_alloc.allocate(1);
-        node_alloc.construct(right, avl(data,k_comp,v_comp,alloc));
+        node_alloc.construct(right, rbTree(data,k_comp,alloc));
         right->color = RED;
         right->height = 1;
         right->parent = this;
     };
     
-    void put_right(T data)
+    void put_left(T data)
     {
         left = node_alloc.allocate(1);
-        node_alloc.construct(left,avl(data,k_comp,v_comp,alloc));
+        node_alloc.construct(left,rbTree(data,k_comp,alloc));
         left->height = 1;
-        temp->color = RED;
+        left->color = RED;
         left->parent = this;
     };
 
@@ -188,7 +192,7 @@ struct rbTree{
             this->data = alloc.allocate(1);
         alloc.construct(this->data, data);
     }
-    rbTree *insert_node(T data, size_t &size, avl* & inserted)//use key compare or value compare here
+    rbTree *insert_node(T data, size_t &size, rbTree* & inserted)//use key compare or value compare here
     {
         rbTree* root = 0;
         rbTree* temp = 0;
@@ -230,11 +234,10 @@ struct rbTree{
         else if(k_comp(*(this->data) , data))
         {
             if(!right)
-            {static int i = 0;
+            {
             
                 put_right(data);
                 inserted = right;
-                i++;
                
                 root = right->balance(INSERTION);
              
@@ -276,7 +279,7 @@ struct rbTree{
         return root;
     };
 
-    rbTree* insert(T data, size_t & size, avl* &inserted)//must be used in the root
+    rbTree* insert(T data, size_t & size, rbTree* &inserted)//must be used in the root
     {
         // make it so if(parent doesnt exists then it does otherwise it wont)
         rbTree* root = insert_node(data,size, inserted);
@@ -289,14 +292,14 @@ struct rbTree{
             return this;
     }
 
-    rbTree *find_node_key(first_type key) // use on the root ofc
+    rbTree *find_node_key(T key) // use on the root ofc
     {
         rbTree *node = this;
         while (1)
         {
-            if (node->data == key)
+            if (*(node->data) == key)
                 break;
-            if (k_comp(key, node->data))
+            if (k_comp(key, *(node->data)))
             {
                 if (node->left)
                     node = node->left;
@@ -316,8 +319,7 @@ struct rbTree{
 
     rbTree* balance(bool type)//if it catches parent it returns it otherwise it returns 0
     {//node is the child in the imbalance
-        static int i = 0;
-        i++;
+        (void)type;
         
         if(parent == NULL || parent->color == BLACK)
             return 0;
@@ -357,13 +359,13 @@ struct rbTree{
         {//we in left of parent
             if(k_comp(*(child->parent->data), *(child->parent->parent->data)))
             {// LL
-                std::cout << "LL" << std::endl;
+                // std::cout << "LL" << std::endl;
                 recolor(child->parent,child->parent->parent);
                 root = right_rotate(nodeRotate);
             }
             else
             {// RL
-                std::cout << "RL" << std::endl;
+                // std::cout << "RL" << std::endl;
                 recolor(child,child->parent->parent);
                 root = right_rotate(nodeRotate->right);
                 root = left_rotate(nodeRotate);
@@ -374,14 +376,14 @@ struct rbTree{
             if(k_comp(*(child->parent->data), *(child->parent->parent->data)))
             {// LR
             
-                std::cout << "LR" << std::endl;
+                // std::cout << "LR" << std::endl;
                 recolor(child,child->parent->parent);
                 root = left_rotate(nodeRotate->left);
                 root = right_rotate(nodeRotate);
             }
             else
             {// RR
-                std::cout << "RR" << std::endl;
+                // std::cout << "RR" << std::endl;
                 recolor(child->parent,child->parent->parent);
                 
                 root = left_rotate(nodeRotate);
@@ -563,8 +565,10 @@ T1   T3*/
 
             ret_node = min_max->parent; 
             rbTree *dis = this;
+            if(root == dis)
+                root = min_max;
             swap_addresses(dis,min_max);
-            dis = dis->delete_node();
+            dis = dis->delete_node(root);
             dis->fix_height_till(min_max);
         }
 
@@ -609,9 +613,9 @@ T1   T3*/
 
 
 
-rbTree* find_delete(first_type key, rbTree* root, size_t &deleted, avl *_default) //use on the root ofc
+rbTree* find_delete(T key, rbTree* root, size_t &deleted, rbTree *_default) //use on the root ofc
 {
-    if(data == key)
+    if(*data == key)
     {
         //(if 0 is returned then the parent is null)
         //if no parent means the tree is empty now?
@@ -627,7 +631,7 @@ rbTree* find_delete(first_type key, rbTree* root, size_t &deleted, avl *_default
 
     //if it sends back 0 in recursivity then tree empty do nothin
     //or this that it didnt find the key
-    else if(k_comp(key, data))
+    else if(k_comp(key, *data))
     {
         if(left)
         {
@@ -670,17 +674,17 @@ rbTree* find_delete(first_type key, rbTree* root, size_t &deleted, avl *_default
             return(node);
         }
         else
-            return default;
+            return _default;
     }
 };
 
-rbTree *delete_(first_type key, size_t &deleted, avl *_default) // you send the key apparently
+rbTree *delete_(T key, size_t &deleted) // you send the key apparently
 {
 
     rbTree *root = this;
     while(root->parent)
         root = root->parent;
-    root = find_delete(key, root, deleted, _default);
+    root = find_delete(key, root, deleted, this);
     if (root == 0)
         // tree is empty, return a new root null
         return NULL;
