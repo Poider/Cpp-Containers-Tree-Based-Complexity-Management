@@ -1,3 +1,15 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   red_black.hpp                                      :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: mel-amma <mel-amma@student.42.fr>          +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2023/01/16 12:59:43 by mel-amma          #+#    #+#             */
+/*   Updated: 2023/01/16 14:45:45 by mel-amma         ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 #ifndef _RED_BLACK //adding comp // changed new to use allocator instead for nodes (+ the use of that comp etc whenever u create a new node) //added size to change inside the insert// added so it would take a reference on a pointer and puts the address of the inserted node in it//change it so it dont change value of key if it already exist//added _default to delete to return if it didnt find// added a "bool" to tell if it deleted or not // : v_comp(key_compare()) added in  constructs by default//put right put left changes//added swap addresses
 #define _RED_BLACK
 #include <memory>

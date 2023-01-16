@@ -1,7 +1,19 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   stack.hpp                                          :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: mel-amma <mel-amma@student.42.fr>          +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2023/01/16 13:01:27 by mel-amma          #+#    #+#             */
+/*   Updated: 2023/01/16 15:03:51 by mel-amma         ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 #ifndef _my_stack
 #define _my_stack
 
-#include "vector.hpp"
+#include "../containers/vector.hpp"
 namespace ft {
   template<class T, class Container = ft::vector<T> >
   class stack {

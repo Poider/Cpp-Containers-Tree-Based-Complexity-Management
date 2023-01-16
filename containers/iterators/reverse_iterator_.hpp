@@ -6,14 +6,14 @@
 /*   By: mel-amma <mel-amma@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/01/01 14:56:14 by mel-amma          #+#    #+#             */
-/*   Updated: 2023/01/01 18:42:43 by mel-amma         ###   ########.fr       */
+/*   Updated: 2023/01/16 15:04:14 by mel-amma         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #ifndef _reverse_iterator_
 #define _reverse_iterator_
 
-#include "iterator_traits.hpp"
+#include "../utils/iterator_traits.hpp"
 
 namespace ft{
 
@@ -45,10 +45,7 @@ template <typename iterator>
         template<class Key, class Compare ,
            class Allocator >
            friend class set;
-        reverse_iterator(iterator_type& it) 
-        {
-            this->it = it;
-        };
+        
 
 
         //>>>>>friends 
@@ -57,6 +54,11 @@ template <typename iterator>
         template <typename rit>
             friend class reverse_iterator;
     public :
+        reverse_iterator(const iterator_type& it) 
+        {
+            this->it = it;
+        };
+        
         iterator_type base() const
         {
             return it;

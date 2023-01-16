@@ -6,7 +6,7 @@
 /*   By: mel-amma <mel-amma@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/11/05 12:49:00 by mel-amma          #+#    #+#             */
-/*   Updated: 2023/01/01 14:58:42 by mel-amma         ###   ########.fr       */
+/*   Updated: 2023/01/16 15:05:49 by mel-amma         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,8 +16,8 @@
 #include <memory>
 #include <algorithm>
 #include <iterator>
-#include "iterator_traits.hpp"
-#include "reverse_iterator_.hpp"
+#include "../utils/iterator_traits.hpp"
+#include "../iterators/reverse_iterator_.hpp"
 template <class T, class Allocator>
 class vector;
 

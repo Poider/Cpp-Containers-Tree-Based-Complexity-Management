@@ -1,3 +1,15 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   set.hpp                                            :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: mel-amma <mel-amma@student.42.fr>          +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2023/01/16 13:00:23 by mel-amma          #+#    #+#             */
+/*   Updated: 2023/01/16 15:08:49 by mel-amma         ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 #ifndef _my_set__
 #define _my_set__
 
@@ -6,11 +18,11 @@
 #include <sys/stat.h>
 #include <unistd.h>
 // #include <set>
-#include "pair.hpp"
+#include "../utils/pair.hpp"
 #include <functional>
-#include "red_black.hpp"
-#include "set_iterator.hpp"
-#include "compare.hpp"
+#include "../trees/red_black.hpp"
+#include "../iterators/set_iterator.hpp"
+#include "../utils/compare.hpp"
 namespace ft{
   
     //updating min / max values

@@ -6,7 +6,7 @@
 /*   By: mel-amma <mel-amma@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/11/05 12:49:07 by mel-amma          #+#    #+#             */
-/*   Updated: 2023/01/01 15:20:04 by mel-amma         ###   ########.fr       */
+/*   Updated: 2023/01/16 16:54:04 by mel-amma         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,12 +16,12 @@
 #include <algorithm>
 #include <cmath>
 #include <iterator>
-#include "iterator_traits.hpp"
-#include "vector_iterators.hpp"
+#include "../utils/iterator_traits.hpp"
+#include "../iterators/vector_iterators.hpp"
 // #include <cstdlib>
-#include "enable_if.hpp"
-#include "is_integral.hpp"
-#include "compare.hpp"
+#include "../utils/enable_if.hpp"
+#include "../utils/is_integral.hpp"
+#include "../utils/compare.hpp"
 namespace ft{
 
 
@@ -92,11 +92,12 @@ public:
                 container = nullptr;
                 _size = 0;
                 _capacity = 0;
-                while(first != last)
-                {
-                    push_back(*first);
-                    first++;
-                }
+                insert(begin(),first,last);
+                // while(first != last)
+                // {
+                //     push_back(*first);
+                //     first++;
+                // }
                 // if(s <= 0)
                 //     return;
                 // if(s < max_size())
@@ -437,8 +438,10 @@ public:
             if(count <= 0)
                 return iterator(container + position);
             //reallocate if capacity < (new size) oldsize + (1 or count);
-            while(_size + count > _capacity)
+            if(_size + count > _capacity)
                 double_up(_capacity * 2);
+            if(_size + count > _capacity)
+                double_up(_size + count);
 
             for(size_type i = 0; i < count ; i++)
                 alloc.construct(container + _size + i, value);
@@ -505,8 +508,10 @@ public:
             if(count <= 0)
                 return iterator(container + position);
             //reallocate if capacity < (new size) oldsize + (1 or count);
-            while(_size + count > _capacity)
+            if(_size + count > _capacity)
                 double_up(_capacity * 2);
+            if(_size + count > _capacity)
+                double_up(_size + count);
 
             for(size_type i = 0; i < count ; i++)
                 alloc.construct(container + _size + i, *first);
@@ -594,7 +599,7 @@ public:
         else
         {
             while(count > _capacity)
-                double_up(_capacity * 2);
+                double_up(count);
             for(size_type i = 0; i < count - _size; i++)
             {
                 alloc.construct(&container[_size + i], value);

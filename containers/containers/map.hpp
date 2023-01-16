@@ -1,3 +1,15 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   map.hpp                                            :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: mel-amma <mel-amma@student.42.fr>          +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2023/01/16 12:59:37 by mel-amma          #+#    #+#             */
+/*   Updated: 2023/01/16 15:03:12 by mel-amma         ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 #ifndef _my_map__
 #define _my_map__
 
@@ -6,11 +18,11 @@
 #include <sys/stat.h>
 #include <unistd.h>
 // #include <map>
-#include "pair.hpp"
+#include "../utils/pair.hpp"
 #include <functional>
-#include "avl_tree.hpp"
-#include "map_iterator.hpp"
-#include "compare.hpp"
+#include "../trees/avl_tree.hpp"
+#include "../iterators/map_iterator.hpp"
+#include "../utils/compare.hpp"
 namespace ft{
   
     //updating min / max values
@@ -158,7 +170,7 @@ namespace ft{
 // make it change vcomps etc on stuff that wont work with the root (thatll be called by another node thats not root), otherwise just change it in root
 //if you copy or smth, make if root then root -> comp alloc change
     explicit map(const Compare &comp,
-                 const Allocator &alloc = Allocator()): _v_comp(_comp)
+                 const Allocator &alloc = Allocator()): _v_comp(comp)
                  {
                      root = NULL;
                      _max = NULL;
@@ -273,23 +285,19 @@ namespace ft{
     };
     reverse_iterator rbegin()
     {
-        iterator it(nullptr,_v_comp,&root);
-        return reverse_iterator(it);
+        return reverse_iterator(iterator(nullptr,_v_comp,&root));
     };
     const_reverse_iterator rbegin() const
     {
-        const_iterator it(nullptr,_v_comp,&root);
-        return const_reverse_iterator(it);
+        return const_reverse_iterator(const_iterator(nullptr,_v_comp,&root));
     };
     reverse_iterator rend()
     {
-        iterator it(_min,_v_comp,&root);
-        return reverse_iterator(it);
+        return reverse_iterator(iterator(_min,_v_comp,&root));
     };
     const_reverse_iterator rend() const
     {
-        const_iterator it(_min,_v_comp,&root);
-        return const_reverse_iterator(it);
+        return const_reverse_iterator(const_iterator(_min,_v_comp,&root));
     };
 
 //>>>>>> capacity
