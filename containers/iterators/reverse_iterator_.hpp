@@ -6,7 +6,7 @@
 /*   By: mel-amma <mel-amma@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/01/01 14:56:14 by mel-amma          #+#    #+#             */
-/*   Updated: 2023/01/16 15:04:14 by mel-amma         ###   ########.fr       */
+/*   Updated: 2023/01/17 12:46:24 by mel-amma         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -34,25 +34,6 @@ template <typename iterator>
     private :
         // pointer ptr;
         iterator_type it;
-        template<class Key, class T, class Compare ,
-        class Allocator >
-            friend class map;
-        
-        template <class T1, class Allocator1>
-           friend class vector;
-        
-
-        template<class Key, class Compare ,
-           class Allocator >
-           friend class set;
-        
-
-
-        //>>>>>friends 
-        template <typename v_type,typename map_ptrX, class value_compareX>
-            friend class MapIterator;
-        template <typename rit>
-            friend class reverse_iterator;
     public :
         reverse_iterator(const iterator_type& it) 
         {

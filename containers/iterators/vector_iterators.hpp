@@ -6,7 +6,7 @@
 /*   By: mel-amma <mel-amma@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/11/05 12:49:00 by mel-amma          #+#    #+#             */
-/*   Updated: 2023/01/16 15:05:49 by mel-amma         ###   ########.fr       */
+/*   Updated: 2023/01/17 12:45:44 by mel-amma         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -37,19 +37,12 @@ template <typename vec>
         typedef const  reference          const_reference;
     private :
         pointer ptr;
-        template <class T1, class Allocator1>
-           friend class vector;
+      
+    public :
+      
         VectorIterator(pointer ptr):ptr(ptr) 
         {};
 
-        //>>>>>friends
-        template <typename it>
-            friend class VectorIterator;
-        template <typename rit>
-            friend class reverse_iterator;
-        // template <typename ss>
-        //     friend class VectorIterator;
-    public :
         pointer base() const
         {
             return ptr;

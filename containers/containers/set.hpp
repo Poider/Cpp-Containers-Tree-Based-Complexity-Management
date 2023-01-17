@@ -6,7 +6,7 @@
 /*   By: mel-amma <mel-amma@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/01/16 13:00:23 by mel-amma          #+#    #+#             */
-/*   Updated: 2023/01/16 15:08:49 by mel-amma         ###   ########.fr       */
+/*   Updated: 2023/01/17 12:52:50 by mel-amma         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -134,7 +134,7 @@ namespace ft{
     template <class InputIt>
         set(InputIt first, InputIt last,
                 const Compare &comp = Compare(),
-                const Allocator &alloc = Allocator(), typename std::enable_if<!std::is_integral< InputIt >::value,InputIt >::type* = nullptr)
+                const Allocator &alloc = Allocator(), typename ft::enable_if<!ft::is_integral< InputIt >::value,InputIt >::type* = nullptr)
                 {
                     root = NULL;
                     _max = NULL;
@@ -287,7 +287,7 @@ namespace ft{
 
 //enable if
     template< class InputIt >
-        void insert( InputIt first, InputIt last ,typename std::enable_if<!std::is_integral< InputIt >::value,InputIt >::type* = nullptr)
+        void insert( InputIt first, InputIt last ,typename ft::enable_if<!ft::is_integral< InputIt >::value,InputIt >::type* = nullptr)
     {
         while(first != last)
         {

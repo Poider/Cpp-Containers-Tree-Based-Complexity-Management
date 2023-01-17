@@ -6,7 +6,7 @@
 /*   By: mel-amma <mel-amma@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/01/16 12:59:13 by mel-amma          #+#    #+#             */
-/*   Updated: 2023/01/16 14:46:02 by mel-amma         ###   ########.fr       */
+/*   Updated: 2023/01/17 13:46:24 by mel-amma         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -23,11 +23,24 @@ struct base_integral
     const static T value = V;
 };
 
+
+
 typedef  base_integral<bool, true> true_type;
 typedef  base_integral<bool, false> false_type;
 
 template<typename T>
 struct is_integral : false_type{};
+
+
+template<typename T>
+struct is_integral<const T> : is_integral<T> {};
+
+template<typename T>
+struct is_integral<volatile T> : is_integral<T> {};
+
+template<typename T>
+struct is_integral<const volatile T> : is_integral<T> {};
+
 
 template<>
 struct is_integral<int> : true_type{};
@@ -36,7 +49,8 @@ template<>
 struct is_integral<unsigned int> : true_type{};
 
 
-
+template<>
+struct is_integral<signed char> : true_type{};
 
 
 template<>
@@ -44,9 +58,6 @@ struct is_integral<bool> : true_type{};
 
 template<>
 struct is_integral<char> : true_type{};
-
-template<>
-struct is_integral<signed char> : true_type{};
 
 
 template<>
@@ -79,6 +90,11 @@ struct is_integral<unsigned long> : true_type{};
 
 template<>
 struct is_integral<long long> : true_type{};
+
+
+
+template<>
+struct is_integral<unsigned long long> : true_type{};
 
 }
 #endif

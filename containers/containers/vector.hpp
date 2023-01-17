@@ -6,7 +6,7 @@
 /*   By: mel-amma <mel-amma@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/11/05 12:49:07 by mel-amma          #+#    #+#             */
-/*   Updated: 2023/01/16 16:54:04 by mel-amma         ###   ########.fr       */
+/*   Updated: 2023/01/17 12:52:50 by mel-amma         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -85,7 +85,7 @@ public:
 
     template <class InputIt>
     vector(InputIt first, InputIt last,
-           const Allocator &alloc = Allocator(), typename std::enable_if<!std::is_integral< InputIt >::value,InputIt >::type* = nullptr)
+           const Allocator &alloc = Allocator(), typename ft::enable_if<!ft::is_integral< InputIt >::value,InputIt >::type* = nullptr)
            {
                 // size_type s = (size_type)std::distance(first,last);
                 this->alloc= alloc;
@@ -210,7 +210,7 @@ public:
 
 
     template <class InputIt >
-    void assign(InputIt first,typename std::enable_if<!std::is_integral< InputIt >::value,InputIt >::type last)
+    void assign(InputIt first,typename ft::enable_if<!ft::is_integral< InputIt >::value,InputIt >::type last)
     {
         size_type count = std::distance(first,last);
         if(count < 0)
@@ -494,7 +494,7 @@ public:
 
 
     template <class InputIt>
-        iterator insert(const_iterator pos, InputIt first, typename std::enable_if<!std::is_integral< InputIt >::value,InputIt >::type last)
+        iterator insert(const_iterator pos, InputIt first, typename ft::enable_if<!ft::is_integral< InputIt >::value,InputIt >::type last)
         {
             //if(is_input_it) do smth else
             const_iterator beg = begin();

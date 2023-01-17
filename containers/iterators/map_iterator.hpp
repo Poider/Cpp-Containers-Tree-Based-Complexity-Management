@@ -6,7 +6,7 @@
 /*   By: mel-amma <mel-amma@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/01/01 18:28:03 by mel-amma          #+#    #+#             */
-/*   Updated: 2023/01/16 15:05:49 by mel-amma         ###   ########.fr       */
+/*   Updated: 2023/01/17 12:42:45 by mel-amma         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -40,30 +40,23 @@ template <class data_type ,typename map_ptr, class value_compare>
     private :
         iterator_type node_ptr;
         const iterator_type* root_d_ptr;
-        template<class Key, class T, class Compare ,
-        class Allocator >
-            friend class map;
+        
+       
+    
+        
+    public : 
         MapIterator(iterator_type node_ptr,value_compare cmp,const iterator_type *root):node_ptr(node_ptr),root_d_ptr(root)   // send in comparator too
         {
             (void) cmp;
         };
 
-        //>>>>>friends
-        template <typename v_type,typename map_ptrX, class value_compareX>
-            friend class MapIterator;
-        template <typename rit>
-            friend class reverse_iterator;
-        // template <typename ss>
-        //     friend class MapIterator;
-    
-        const iterator_type* root_base() const
-        {
-            return root_d_ptr;
-        };
-    public :
         iterator_type base() const
         {
             return node_ptr;
+        };
+        const iterator_type* root_base() const
+        {
+            return root_d_ptr;
         };
         //default constructible only from forward iterator and ahead
         MapIterator(){};
@@ -189,40 +182,6 @@ template <class data_type ,typename map_ptr, class value_compare>
             };
 
           
-            // MapIterator<map_ptr> operator+(int a) const
-            // {
-            //     MapIterator<map_ptr>  temp;
-            //     temp.node_ptr = node_ptr + a;
-            //     return temp;
-            // };
-            // template <class iter>
-            // friend MapIterator<iter> operator+(int a, const MapIterator<iter>& map);
-            // MapIterator<map_ptr> operator-(int a)const
-            // {
-            //     MapIterator<map_ptr>  temp;
-            //     temp.node_ptr = node_ptr - a;
-            //     return temp;
-            // };
-
-            // difference_type operator-(MapIterator<map_ptr> other)const
-            // {
-            //     difference_type a;
-                
-            //     a = node_ptr - other.node_ptr;
-            //     return a;
-            // };
-
-           
-            // MapIterator& operator+=(int amount)
-            // {
-            //     node_ptr = node_ptr + amount;
-            //     return *this;
-            // };
-            // MapIterator& operator-=(int amount)
-            // {
-            //     node_ptr = node_ptr - amount;
-            //     return *this;
-            // };
             
             /*
             //operator * -> const op const for lvalue
@@ -268,17 +227,7 @@ template <class data_type ,typename map_ptr, class value_compare>
             template <class v_type1 ,typename iterator1, class cmp1, class v_type2,typename iterator2, class cmp2>
             friend bool operator!=(const MapIterator<v_type1,iterator1, cmp1> &it1, const MapIterator<v_type2, iterator2, cmp2> &it2);
 
-            // template <typename iterator1, typename iterator2>
-            // friend bool operator>(const MapIterator<iterator1> &it1, const MapIterator<iterator2> &it2);
-
-            // template <typename iterator1, typename iterator2>
-            // friend bool operator>=(const MapIterator<iterator1> &it1, const MapIterator<iterator2> &it2);
-
-            // template <typename iterator1, typename iterator2>
-            // friend bool operator<(const MapIterator<iterator1> &it1, const MapIterator<iterator2> &it2);
-
-            // template <typename iterator1, typename iterator2>
-            // friend bool operator<=(const MapIterator<iterator1> &it1, const MapIterator<iterator2> &it2);
+      
     };
 
 

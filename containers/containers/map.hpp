@@ -6,7 +6,7 @@
 /*   By: mel-amma <mel-amma@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/01/16 12:59:37 by mel-amma          #+#    #+#             */
-/*   Updated: 2023/01/16 15:03:12 by mel-amma         ###   ########.fr       */
+/*   Updated: 2023/01/17 14:13:56 by mel-amma         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -68,6 +68,7 @@ namespace ft{
             {};
 
         public:
+        
         bool operator()(const value_type& x, const value_type& y) const 
         {
             return comp(x.first, y.first);
@@ -184,7 +185,7 @@ namespace ft{
     template <class InputIt>
         map(InputIt first, InputIt last,
                 const Compare &comp = Compare(),
-                const Allocator &alloc = Allocator(), typename std::enable_if<!std::is_integral< InputIt >::value,InputIt >::type* = nullptr) : _v_comp(_comp)
+                const Allocator &alloc = Allocator(), typename ft::enable_if<!ft::is_integral< InputIt >::value,InputIt >::type* = nullptr) : _v_comp(_comp)
                 {
                     root = NULL;
                     _max = NULL;
@@ -364,7 +365,7 @@ namespace ft{
 
 //enable if
     template< class InputIt >
-        void insert( InputIt first, InputIt last ,typename std::enable_if<!std::is_integral< InputIt >::value,InputIt >::type* = nullptr)
+        void insert( InputIt first, InputIt last ,typename ft::enable_if<!ft::is_integral< InputIt >::value,InputIt >::type* = nullptr)
     {
         while(first != last)
         {
