@@ -37,7 +37,7 @@ Each data structure is implemented with all necessary utilities, functions, iter
    - A last-in, first-out (LIFO) structure for handling data.
    - Provides efficient push and pop operations, with full iterator support for easy traversal.
   
-**AVL tree Rotations** 
+**AVL tree Rotations Example** 
 
 ![AVL Rotations](https://github.com/user-attachments/assets/09b55693-e7e9-4fd1-ae6f-7bdca088b835)
 
